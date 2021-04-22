@@ -1,26 +1,33 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Switch, Route, BrowserRouter, Redirect } from 'react-router-dom'
+import { MuiThemeProvider } from '@material-ui/core'
+import { theme } from './constants/main-theme-provider'
+
+import './App.css'
+import GameStateProvider from './providers/GameStateProvider'
+
+import Menu from './components/Menu'
+import StartPage from './pages/StartPage'
+import GamePage from './pages/GamePage'
+import EndGamePage from './pages/EndGamePage'
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <GameStateProvider>
+      <MuiThemeProvider theme={theme}>
+        <BrowserRouter>
+          <div className="App">
+            <Menu />
+            <Switch>
+              <Route path="/" exact component={StartPage} />
+              <Route path="/game" component={GamePage} />
+              <Route path="/result" exact component={EndGamePage} />
+              <Redirect from="/" to="/" />
+            </Switch>
+          </div>
+        </BrowserRouter>
+      </MuiThemeProvider>
+    </GameStateProvider>
+  )
 }
 
-export default App;
+export default App
