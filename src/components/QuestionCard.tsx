@@ -8,7 +8,7 @@ import PeopleCatPhoto from '../assets/img/peopleCat2.jpg'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    minWidth: 300,
+    width: 300,
     backgroundColor: '#ffd900'
     // backgroundColor: theme.palette.secondary.light
   },
@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface QuestionCardProps {
+  question: string
   hints: string[]
 }
 
@@ -39,13 +40,14 @@ const QuestionCard = (props: QuestionCardProps) => {
       />
       <CardContent className={classes.card}>
         <Typography style={{textAlign: 'left'}} gutterBottom variant="h5" component="h2">
-          Who is this?
+          {props.question}
         </Typography>
+        {props.hints[0] !== "" ? 
         <Typography variant="body2" color="textPrimary" component="span">
             <ol style={{textAlign: 'left'}}>
                 {props.hints.map((el, index) => <li key={index}>{el}</li>)}
             </ol>
-        </Typography>
+        </Typography> : null }
       </CardContent>
     </Card>
   )

@@ -2,12 +2,18 @@ import React, { useContext, useState } from 'react'
 
 interface DataContextType {
   header: string
-  nickname: string
+  nickname: string,
+  gameId: string,
+  timer: number,
+  questionNum?: number
 }
 
 const initialState = {
     header: 'Quiz Game',
-    nickname: 'Anonymous'
+    nickname: 'Anonymous',
+    gameId: '',
+    timer: 0,
+    questionNum: 0
   }
 
 const GameStateContext = React.createContext<

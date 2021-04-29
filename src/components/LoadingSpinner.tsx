@@ -8,7 +8,7 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: 'rgba(255,255,255,0.2)',
+      backgroundColor: 'rgba(0,0,0,0.5)',
       position: 'absolute',
       top: 0,
       width: '100%',

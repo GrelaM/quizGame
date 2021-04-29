@@ -61,7 +61,7 @@ const sendAnswerHandler = async (
   return fetchedData
 }
 
-const GamePage = () => {
+const Test = () => {
   const classes = useStyles()
   const [useGlobalState, setUseGlobalState] = useGameState()
   const [state, setState] = useState(initialState)
@@ -231,4 +231,4 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default GamePage
+export default Test

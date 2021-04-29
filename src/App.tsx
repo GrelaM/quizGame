@@ -9,6 +9,7 @@ import Menu from './components/Menu'
 import StartPage from './pages/StartPage'
 import GamePage from './pages/GamePage'
 import EndGamePage from './pages/EndGamePage'
+import Test from './pages/TEST'
 
 function App() {
   return (
@@ -20,7 +21,9 @@ function App() {
             <Switch>
               <Route path="/" exact component={StartPage} />
               <Route path="/game" component={GamePage} />
-              <Route path="/result" exact component={EndGamePage} />
+              <Route path="/result" component={EndGamePage} />
+              <Route path="/test" component={Test} />
+              <Route path="/test/game/:questionNumber" component={Test} />
               <Redirect from="/" to="/" />
             </Switch>
           </div>

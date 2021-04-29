@@ -34,17 +34,16 @@ const useStyles = makeStyles((theme) => ({
 const EndGamePage = () => {
   const classes = useStyles()
   const history = useHistory()
-  const [gameState, setGameState] = useGameState()
+  const gameState = useGameState()[0]
   const [results, setResults] = useState<number>()
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
     setTimeout(() => {
       setResults(Math.floor(Math.random() * 10))
-      setGameState((currentState) => ({ ...currentState, header: 'THE END' }))
       setIsLoading(false)
     }, 3000)
-  }, [setGameState])
+  }, [])
 
   return (
     <div className={classes.root}>
