@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
 import axios from 'axios'
 import { useGameState } from '../providers/GameStateProvider'
@@ -64,8 +65,9 @@ const sendAnswerHandler = async (
 const GamePage = () => {
   const classes = useStyles()
   const [useGlobalState, setUseGlobalState] = useGameState()
-  const [state, setState] = useState(initialState)
+  const history = useHistory()
 
+  const [state, setState] = useState(initialState)
   const [counter, setCounter] = useState(0)
   const [hints, setHints] = useState<string[]>([''])
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -79,48 +81,70 @@ const GamePage = () => {
 
   //DATA EFFECT
   useEffect(() => {
+    // console.log(state.gameStatus)
+
     setIsLoading(true)
-    fetchDataHandler(gameId)
-      .then((res) => {
-        console.log(res.data.question)
-        setUseGlobalState((cur) => ({
+    if (state.gameStatus === false) {
+      return () => {
+        console.log('THE END...')
+        setUseGlobalState(cur => ({
           ...cur,
-          header: `Question #${res.data.question.questionNumber}`,
-          questionNum: res.data.question.questionNumber
+          header: 'WELL DONE !!!'
         }))
-        setState(res.data.question)
-        setUpdatedState((cur) => cur + 1)
-        setCounter(time)
-        setActiveBtn(false)
-        setIsLoading(false)
-      })
-      
-      .catch((err) => console.log(err))
-  }, [response, gameId, time, setUseGlobalState])
+        history.push('/result')
+      }
+    } else {
+      fetchDataHandler(gameId)
+        .then((res) => {
+          // console.log(res.data.question)
+          // console.log('Next Question Req...')
+          setUseGlobalState((cur) => ({
+            ...cur,
+            header: `Question #${res.data.question.questionNumber}`,
+            questionNum: res.data.question.questionNumber
+          }))
+          setState(res.data.question)
+          setUpdatedState((cur) => cur + 1)
+          setCounter(time)
+          setActiveBtn(false)
+          setIsLoading(false)
+        })
+        .catch((err) => console.log(err))
+    }
+  }, [response, gameId, time, setUseGlobalState, state.gameStatus, history])
 
   // USER DISPLAY EFFECT
   useEffect(() => {
-    if(!state.hints.length) return () => {}
+    if (!state.hints.length) return () => {}
     //TIMER
     let leftTime: number
     leftTime = time
     const timeInterval = setInterval(() => {
       leftTime = leftTime - 1
       setCounter((counter) => counter - 1)
-      if (leftTime === 0 && state.gameStatus === true) {
+      if (leftTime === 0) {
         clearInterval(timeInterval)
         setIsLoading(true)
-        sendAnswerHandler(gameId, useGlobalState.questionNum!, {code: -1, value: ''})
+        sendAnswerHandler(gameId, useGlobalState.questionNum!, {
+          code: -1,
+          value: ''
+        })
           .then((res) => {
             if (res.data.status) {
               setResponse((cur) => cur + 1)
-              setState(initialState)
-              setHints([])
+              if (state.gameStatus) {
+                setState(initialState)
+              } else {
+                setState((cur) => ({
+                  ...cur,
+                  question: 'Loading...',
+                  hints: []
+                }))
+              }
             }
           })
           .catch((err) => console.log(err))
       } else {
-
       }
     }, 1000)
 
@@ -151,8 +175,9 @@ const GamePage = () => {
 
   // BTN METHOD
   const responseHandler = (answer: Answer) => {
-    const questionNumber = state.questionNumber
-    console.log('I was clicked...')
+    // console.log('I was clicked...')
+
+    const questionNumber = state.questionNumber - 1
     setIsLoading(true)
     setActiveBtn(true)
 
@@ -160,7 +185,16 @@ const GamePage = () => {
       .then((res) => {
         if (res.data.status) {
           setResponse((cur) => cur + 1)
-          setState(initialState)
+          if (state.gameStatus) {
+            setState(initialState)
+          } else {
+            setState((cur) => ({
+              ...cur,
+              question: 'Loading...',
+              hints: [],
+              gameStatus: false
+            }))
+          }
           setHints([])
         }
       })

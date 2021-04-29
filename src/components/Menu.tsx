@@ -8,7 +8,10 @@ const useStyles = makeStyles((theme) => ({
     background: mainLinearGradient,
     border: 0,
     boxShadow: '0 3px 5px 2px rgba(236, 0, 39, 0.2)',
-    color: theme.palette.text.secondary
+    color: theme.palette.text.secondary,
+    "@media (min-width: 1280px)": {
+      maxWidth: '100%'
+    }
   }
 }))
 

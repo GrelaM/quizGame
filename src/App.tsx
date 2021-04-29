@@ -23,7 +23,6 @@ function App() {
               <Route path="/game" component={GamePage} />
               <Route path="/result" component={EndGamePage} />
               <Route path="/test" component={Test} />
-              <Route path="/test/game/:questionNumber" component={Test} />
               <Redirect from="/" to="/" />
             </Switch>
           </div>

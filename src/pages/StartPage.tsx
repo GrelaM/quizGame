@@ -46,7 +46,7 @@ const StartPage = () => {
         }))
       })
       .then(() => {
-        history.push('/test') // FOR NOW IT IS WRONG REDIRECTION!!!
+        history.push('/game') // FOR NOW IT IS WRONG REDIRECTION!!!
       })
       .catch((err) => console.log(err))
   }
