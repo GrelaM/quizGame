@@ -7,9 +7,10 @@ import GameStateProvider from './providers/GameStateProvider'
 
 import Menu from './components/Menu'
 import StartPage from './pages/StartPage'
+import WaitingRoomPage from './pages/WaitingRoomPage'
 import GamePage from './pages/GamePage'
 import EndGamePage from './pages/EndGamePage'
-import Test from './pages/TEST'
+import Test from './pages/Z-TEST'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Menu />
             <Switch>
               <Route path="/" exact component={StartPage} />
+              <Route path='/waitingroom' component={WaitingRoomPage} />
               <Route path="/game" component={GamePage} />
               <Route path="/result" component={EndGamePage} />
               <Route path="/test" component={Test} />

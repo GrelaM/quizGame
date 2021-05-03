@@ -8,16 +8,24 @@ import PeopleCatPhoto from '../assets/img/peopleCat2.jpg'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: 300,
-    backgroundColor: '#ffd900'
-    // backgroundColor: theme.palette.secondary.light
+    maxHeight: 400,
+    minWidth: 300,
+    backgroundColor: '#ffd900',
+    '@media only screen and (min-width: 750px)': {
+      maxHeight: 500,
+      maxWidth: 600
+    }
   },
   media: {
-    height: 150
+    minHeight: 150,
+    '@media only screen and (min-width: 750px)': {
+      minHeight: 275
+    }
   },
   card: {
+    overflow: 'none',
     padding: 5,
-    "&:last-child": {
+    '&:last-child': {
       paddingBottom: 0
     }
   }
@@ -39,15 +47,23 @@ const QuestionCard = (props: QuestionCardProps) => {
         title="People"
       />
       <CardContent className={classes.card}>
-        <Typography style={{textAlign: 'left'}} gutterBottom variant="h5" component="h2">
+        <Typography
+          style={{ textAlign: 'left' }}
+          gutterBottom
+          variant="h5"
+          component="h2"
+        >
           {props.question}
         </Typography>
-        {props.hints[0] !== "" ? 
-        <Typography variant="body2" color="textPrimary" component="span">
-            <ol style={{textAlign: 'left'}}>
-                {props.hints.map((el, index) => <li key={index}>{el}</li>)}
+        {props.hints[0] !== '' ? (
+          <Typography variant="body2" color="textPrimary" component="span">
+            <ol style={{ textAlign: 'left' }}>
+              {props.hints.map((el, index) => (
+                <li key={index}>{el}</li>
+              ))}
             </ol>
-        </Typography> : null }
+          </Typography>
+        ) : null}
       </CardContent>
     </Card>
   )

@@ -39,9 +39,9 @@ const initialState: State = {
 }
 
 const fetchDataHandler = async (gameId: string) => {
-  const id = gameId.substring(1)
+  const id = gameId
   const fetchedData = await axios.get(
-    `http://localhost:8080/singleplayer/game/%23${id}`
+    `http://localhost:8080/singleplayer/game/${id}`
   )
   return fetchedData
 }
@@ -54,9 +54,9 @@ const sendAnswerHandler = async (
     value: string
   }
 ) => {
-  const id = gameId.substring(1)
+  const id = gameId
   const fetchedData = await axios.post(
-    `http://localhost:8080/singleplayer/game/%23${id}/question/${question}`,
+    `http://localhost:8080/singleplayer/game/${id}/question/${question}`,
     data
   )
   return fetchedData
@@ -95,15 +95,18 @@ const GamePage = () => {
       }
     } else {
       fetchDataHandler(gameId)
-        .then((res) => {
-          // console.log(res.data.question)
+        .then((res) => {         
+          const newRes = res.data.question
+          // console.log(res.data.question)          
+          // console.log(typeof res.data.question.questionNumber)
           // console.log('Next Question Req...')
+
           setUseGlobalState((cur) => ({
             ...cur,
             header: `Question #${res.data.question.questionNumber}`,
             questionNum: res.data.question.questionNumber
           }))
-          setState(res.data.question)
+          setState(newRes)
           setUpdatedState((cur) => cur + 1)
           setCounter(time)
           setActiveBtn(false)
@@ -238,9 +241,8 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     justifyContent: 'space-around',
     alignItems: 'center',
-    flex: 1,
+    flexGrow: 1,
     padding: 5,
-    maxHeight: 450,
     margin: 'auto'
   },
   textArea: {

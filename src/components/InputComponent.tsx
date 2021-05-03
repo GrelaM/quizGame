@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     borderColor: theme.palette.secondary.dark
   },
   inputLabelProps: {
-    color: theme.palette.text.primary,
+    color: theme.palette.success.main,
     fontWeight: 'bold'
   }
 }))

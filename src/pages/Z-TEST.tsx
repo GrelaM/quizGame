@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
 import axios from 'axios'
 import { useGameState } from '../providers/GameStateProvider'
@@ -27,7 +28,7 @@ const initialState: State = {
   category: '',
   questionNumber: 0,
   question: 'Loading...',
-  hints: [],
+  hints: ['The place of a well and, later, of a city in southern Judah.', 'Today, it retains its position as a crossroads town and an important marketplace.', 'It was from it that Abraham went to Moriah to offer Isaac as a sacrifice, and he returned there to dwell.'],
   answers: [
     { code: -1, value: 'A' },
     { code: -1, value: 'B' },
@@ -38,9 +39,9 @@ const initialState: State = {
 }
 
 const fetchDataHandler = async (gameId: string) => {
-  const id = gameId.substring(1)
+  const id = gameId
   const fetchedData = await axios.get(
-    `http://localhost:8080/singleplayer/game/%23${id}`
+    `http://localhost:8080/singleplayer/game/${id}`
   )
   return fetchedData
 }
@@ -53,22 +54,23 @@ const sendAnswerHandler = async (
     value: string
   }
 ) => {
-  const id = gameId.substring(1)
+  const id = gameId
   const fetchedData = await axios.post(
-    `http://localhost:8080/singleplayer/game/%23${id}/question/${question}`,
+    `http://localhost:8080/singleplayer/game/${id}/question/${question}`,
     data
   )
   return fetchedData
 }
 
-const Test = () => {
+const GamePage = () => {
   const classes = useStyles()
   const [useGlobalState, setUseGlobalState] = useGameState()
-  const [state, setState] = useState(initialState)
+  const history = useHistory()
 
+  const [state, setState] = useState(initialState)
   const [counter, setCounter] = useState(0)
-  const [hints, setHints] = useState<string[]>([''])
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [hints, setHints] = useState<string[]>(state.hints)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [updatedState, setUpdatedState] = useState<number>(0)
   const [response, setResponse] = useState<number>(0)
@@ -77,57 +79,82 @@ const Test = () => {
   const time = useGlobalState.timer
   const gameId = useGlobalState.gameId
 
-  //DATA EFFECT
+  // //DATA EFFECT
   useEffect(() => {
+    // console.log(state.gameStatus)
+
     setIsLoading(true)
-    fetchDataHandler(gameId)
-      .then((res) => {
-        console.log(res.data.question)
-        setUseGlobalState((cur) => ({
+    if (state.gameStatus === false) {
+      return () => {
+        console.log('THE END...')
+        setUseGlobalState(cur => ({
           ...cur,
-          header: `Question #${res.data.question.questionNumber}`,
-          questionNum: res.data.question.questionNumber
+          header: 'WELL DONE !!!'
         }))
-        setState(res.data.question)
-        setUpdatedState((cur) => cur + 1)
-        setCounter(time)
-        setActiveBtn(false)
-        setIsLoading(false)
-      })
-      
-      .catch((err) => console.log(err))
-  }, [response, gameId, time, setUseGlobalState])
+        history.push('/result')
+      }
+    } else {
+      fetchDataHandler(gameId)
+        .then((res) => {         
+          const newRes = res.data.question
+          // console.log(res.data.question)          
+          // console.log(typeof res.data.question.questionNumber)
+          // console.log('Next Question Req...')
+
+          setUseGlobalState((cur) => ({
+            ...cur,
+            header: `Question #${res.data.question.questionNumber}`,
+            questionNum: res.data.question.questionNumber
+          }))
+          setState(newRes)
+          setUpdatedState((cur) => cur + 1)
+          setCounter(time)
+          setActiveBtn(false)
+          setIsLoading(false)
+        })
+        .catch((err) => console.log(err))
+    }
+  }, [response, gameId, time, setUseGlobalState, state.gameStatus, history])
 
   // USER DISPLAY EFFECT
   useEffect(() => {
-    if(!state.hints.length) return () => {}
+    if (!state.hints.length) return () => {}
     //TIMER
     let leftTime: number
     leftTime = time
     const timeInterval = setInterval(() => {
       leftTime = leftTime - 1
       setCounter((counter) => counter - 1)
-      if (leftTime === 0 && state.gameStatus === true) {
+      if (leftTime === 0) {
         clearInterval(timeInterval)
         setIsLoading(true)
-        sendAnswerHandler(gameId, useGlobalState.questionNum!, {code: -1, value: ''})
+        sendAnswerHandler(gameId, useGlobalState.questionNum!, {
+          code: -1,
+          value: ''
+        })
           .then((res) => {
             if (res.data.status) {
               setResponse((cur) => cur + 1)
-              setState(initialState)
-              setHints([])
+              if (state.gameStatus) {
+                setState(initialState)
+              } else {
+                setState((cur) => ({
+                  ...cur,
+                  question: 'Loading...',
+                  hints: []
+                }))
+              }
             }
           })
           .catch((err) => console.log(err))
       } else {
-
       }
     }, 1000)
 
     // HINTS
     const nextHintTimer = (time / 3) * 1000
     let number = 0
-
+    
     setHints([state.hints[0]])
     const hintsInterval = setInterval(() => {
       if (number === 0) {
@@ -151,8 +178,9 @@ const Test = () => {
 
   // BTN METHOD
   const responseHandler = (answer: Answer) => {
-    const questionNumber = state.questionNumber
-    console.log('I was clicked...')
+    // console.log('I was clicked...')
+
+    const questionNumber = state.questionNumber - 1
     setIsLoading(true)
     setActiveBtn(true)
 
@@ -160,7 +188,16 @@ const Test = () => {
       .then((res) => {
         if (res.data.status) {
           setResponse((cur) => cur + 1)
-          setState(initialState)
+          if (state.gameStatus) {
+            setState(initialState)
+          } else {
+            setState((cur) => ({
+              ...cur,
+              question: 'Loading...',
+              hints: [],
+              gameStatus: false
+            }))
+          }
           setHints([])
         }
       })
@@ -204,9 +241,8 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     justifyContent: 'space-around',
     alignItems: 'center',
-    flex: 1,
+    flexGrow: 1,
     padding: 5,
-    maxHeight: 450,
     margin: 'auto'
   },
   textArea: {
@@ -231,4 +267,4 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default Test
+export default GamePage

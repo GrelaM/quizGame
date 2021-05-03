@@ -11,13 +11,14 @@ import LoadingSpinner from '../components/LoadingSpinner'
 
 type ResultsType = {
   points: number
-  maxPoints: number
+  correctAnswers: number
+  questionQuantity: number
 }
 
 const fetchResultsHandler = async (gameId: string) => {
-  const id = gameId.substring(1)
+  const id = gameId
   const fetchedData = await axios.get(
-    `http://localhost:8080/results/singlegame/%23${id}`
+    `http://localhost:8080/results/singlegame/${id}`
   )
   return fetchedData
 }
@@ -28,7 +29,8 @@ const EndGamePage = () => {
   const gameState = useGameState()[0]
   const [results, setResults] = useState<ResultsType>({
     points: 0,
-    maxPoints: 0
+    correctAnswers: 0,
+    questionQuantity: 0
   })
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [useGlobalState, setUseGlobalState] = useGameState()
@@ -40,7 +42,8 @@ const EndGamePage = () => {
       .then((res) => {
         const resultState: ResultsType = {
           points: res.data.points,
-          maxPoints: res.data.maxPoints
+          correctAnswers: res.data.givenCorrectAnswers,
+          questionQuantity: res.data.questions
         }
         setResults(resultState)
         setIsLoading(false)
@@ -53,6 +56,7 @@ const EndGamePage = () => {
       header: 'Quiz Game',
       nickname: 'Anonymous',
       gameId: '',
+      artificialGameId: '#',
       timer: 0,
       questionNum: 0
     })
@@ -67,16 +71,21 @@ const EndGamePage = () => {
         <div className={classes.center}>
           <GamePicture picture={Picture} />
           <div className={classes.textArea}>
-            <h2>
-              WELL DONE{' '}
+            <h2 style={{margin: '10px'}}>
+              Congratulations{' '}
               <span style={{ color: '#268f00' }}>{gameState.nickname}</span>!!!
             </h2>
-            <h3>
+            <h3 style={{margin: '8px'}}>
               Your result is:{' '}
-              <span style={{ color: '#268f00' }}>
-                {results.points}/{results.maxPoints}
-              </span>
+              <span style={{ color: '#268f00' }}>{results.points} points!</span>
             </h3>
+            <h4 style={{margin: '8px'}}>
+              You gave:{' '}
+              <span style={{ color: '#268f00' }}>
+                {results.correctAnswers}/{results.questionQuantity} correct
+                answers.
+              </span>
+            </h4>
           </div>
           <MainButton
             notActive={false}
