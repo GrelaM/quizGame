@@ -5,6 +5,47 @@ import CardMedia from '@material-ui/core/CardMedia'
 import Typography from '@material-ui/core/Typography'
 
 import PeopleCatPhoto from '../assets/img/peopleCat2.jpg'
+import Counter from './Counter'
+
+interface QuestionCardProps {
+  question: string
+  hints: string[]
+  progressCounter: number
+}
+
+const QuestionCard = (props: QuestionCardProps) => {
+  const classes = useStyles()
+
+  return (
+    <Card className={classes.root}>
+      <CardMedia
+        className={classes.media}
+        image={PeopleCatPhoto}
+        title="People"
+      />
+      <Counter progressValue={props.progressCounter}/>
+      <CardContent className={classes.card}>
+        <Typography
+          style={{ textAlign: 'left' }}
+          gutterBottom
+          variant="h5"
+          component="h2"
+        >
+          {props.question}
+        </Typography>
+        {props.hints[0] !== '' ? (
+          <Typography variant="body2" color="textPrimary" component="span">
+            <ol style={{ textAlign: 'left' }}>
+              {props.hints.map((el, index) => (
+                <li key={index}>{el}</li>
+              ))}
+            </ol>
+          </Typography>
+        ) : null}
+      </CardContent>
+    </Card>
+  )
+}
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,43 +71,5 @@ const useStyles = makeStyles((theme) => ({
     }
   }
 }))
-
-interface QuestionCardProps {
-  question: string
-  hints: string[]
-}
-
-const QuestionCard = (props: QuestionCardProps) => {
-  const classes = useStyles()
-
-  return (
-    <Card className={classes.root}>
-      <CardMedia
-        className={classes.media}
-        image={PeopleCatPhoto}
-        title="People"
-      />
-      <CardContent className={classes.card}>
-        <Typography
-          style={{ textAlign: 'left' }}
-          gutterBottom
-          variant="h5"
-          component="h2"
-        >
-          {props.question}
-        </Typography>
-        {props.hints[0] !== '' ? (
-          <Typography variant="body2" color="textPrimary" component="span">
-            <ol style={{ textAlign: 'left' }}>
-              {props.hints.map((el, index) => (
-                <li key={index}>{el}</li>
-              ))}
-            </ol>
-          </Typography>
-        ) : null}
-      </CardContent>
-    </Card>
-  )
-}
 
 export default QuestionCard

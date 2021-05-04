@@ -91,6 +91,7 @@ const SinglePlayerMode = (props: SingePlayerProps) => {
         onBtnClick={props.startGameHandler}
       />
       <MainButton
+        colorType={'secondary'}
         notActive={false}
         mainBtnName={'Back'}
         onBtnClick={props.gameModeHandler.bind(this, 0)}

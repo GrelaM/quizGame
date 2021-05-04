@@ -14,7 +14,7 @@ const initialState = {
     nickname: 'Anonymous',
     gameId: '6090415a554ed01cbc431b31',
     artificialGameId: '#',
-    timer: 21,
+    timer: 15,
     questionNum: 0
   }
 

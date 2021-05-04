@@ -28,7 +28,11 @@ const initialState: State = {
   category: '',
   questionNumber: 0,
   question: 'Loading...',
-  hints: ['The place of a well and, later, of a city in southern Judah.', 'Today, it retains its position as a crossroads town and an important marketplace.', 'It was from it that Abraham went to Moriah to offer Isaac as a sacrifice, and he returned there to dwell.'],
+  hints: [
+    'The place of a well and, later, of a city in southern Judah.',
+    'Today, it retains its position as a crossroads town and an important marketplace.',
+    'It was from it that Abraham went to Moriah to offer Isaac as a sacrifice, and he returned there to dwell.'
+  ],
   answers: [
     { code: -1, value: 'A' },
     { code: -1, value: 'B' },
@@ -79,102 +83,119 @@ const GamePage = () => {
   const time = useGlobalState.timer
   const gameId = useGlobalState.gameId
 
-  // //DATA EFFECT
   useEffect(() => {
-    // console.log(state.gameStatus)
-
-    setIsLoading(true)
-    if (state.gameStatus === false) {
-      return () => {
-        console.log('THE END...')
-        setUseGlobalState(cur => ({
-          ...cur,
-          header: 'WELL DONE !!!'
-        }))
-        history.push('/result')
-      }
-    } else {
-      fetchDataHandler(gameId)
-        .then((res) => {         
-          const newRes = res.data.question
-          // console.log(res.data.question)          
-          // console.log(typeof res.data.question.questionNumber)
-          // console.log('Next Question Req...')
-
-          setUseGlobalState((cur) => ({
-            ...cur,
-            header: `Question #${res.data.question.questionNumber}`,
-            questionNum: res.data.question.questionNumber
-          }))
-          setState(newRes)
-          setUpdatedState((cur) => cur + 1)
-          setCounter(time)
-          setActiveBtn(false)
-          setIsLoading(false)
-        })
-        .catch((err) => console.log(err))
-    }
-  }, [response, gameId, time, setUseGlobalState, state.gameStatus, history])
-
-  // USER DISPLAY EFFECT
-  useEffect(() => {
-    if (!state.hints.length) return () => {}
     //TIMER
     let leftTime: number
-    leftTime = time
+    leftTime = time - 0.1
     const timeInterval = setInterval(() => {
-      leftTime = leftTime - 1
-      setCounter((counter) => counter - 1)
-      if (leftTime === 0) {
+      leftTime = (leftTime - 0.1)
+      console.log(leftTime)
+      setCounter((counter) => counter + ((100 / time) / 10))
+      if (leftTime <= 0) {
         clearInterval(timeInterval)
-        setIsLoading(true)
-        sendAnswerHandler(gameId, useGlobalState.questionNum!, {
-          code: -1,
-          value: ''
-        })
-          .then((res) => {
-            if (res.data.status) {
-              setResponse((cur) => cur + 1)
-              if (state.gameStatus) {
-                setState(initialState)
-              } else {
-                setState((cur) => ({
-                  ...cur,
-                  question: 'Loading...',
-                  hints: []
-                }))
-              }
-            }
-          })
-          .catch((err) => console.log(err))
-      } else {
+        setTimeout(() => {
+          setIsLoading(true)
+        }, 500)
       }
-    }, 1000)
+    }, 100)
+  }, [])
 
-    // HINTS
-    const nextHintTimer = (time / 3) * 1000
-    let number = 0
-    
-    setHints([state.hints[0]])
-    const hintsInterval = setInterval(() => {
-      if (number === 0) {
-        number += 1
-        setHints((hints) => hints.concat(state.hints[1]))
-      } else if (number === 1) {
-        number += 1
-        setHints((hints) => hints.concat(state.hints[2]))
-      } else if (number === 2) {
-        clearInterval(hintsInterval)
-        setState(initialState)
-        setHints([])
-      }
-    }, nextHintTimer)
+  // // //DATA EFFECT
+  // useEffect(() => {
+  //   // console.log(state.gameStatus)
 
-    return () => {
-      clearInterval(timeInterval)
-      clearInterval(hintsInterval)
-    }
-  }, [updatedState, gameId, time, useGlobalState.questionNum, state.hints, state.gameStatus])
+  //   setIsLoading(true)
+  //   if (state.gameStatus === false) {
+  //     return () => {
+  //       console.log('THE END...')
+  //       setUseGlobalState(cur => ({
+  //         ...cur,
+  //         header: 'WELL DONE !!!'
+  //       }))
+  //       history.push('/result')
+  //     }
+  //   } else {
+  //     fetchDataHandler(gameId)
+  //       .then((res) => {
+  //         const newRes = res.data.question
+  //         // console.log(res.data.question)
+  //         // console.log(typeof res.data.question.questionNumber)
+  //         // console.log('Next Question Req...')
+
+  //         setUseGlobalState((cur) => ({
+  //           ...cur,
+  //           header: `Question #${res.data.question.questionNumber}`,
+  //           questionNum: res.data.question.questionNumber
+  //         }))
+  //         setState(newRes)
+  //         setUpdatedState((cur) => cur + 1)
+  //         setCounter(time)
+  //         setActiveBtn(false)
+  //         setIsLoading(false)
+  //       })
+  //       .catch((err) => console.log(err))
+  //   }
+  // }, [response, gameId, time, setUseGlobalState, state.gameStatus, history])
+
+  // // USER DISPLAY EFFECT
+  // useEffect(() => {
+  //   if (!state.hints.length) return () => {}
+  //   //TIMER
+  //   let leftTime: number
+  //   leftTime = time
+  //   const timeInterval = setInterval(() => {
+  //     leftTime = leftTime - 1
+  //     setCounter((counter) => counter - 1)
+  //     if (leftTime === 0) {
+  //       clearInterval(timeInterval)
+  //       setIsLoading(true)
+  //       sendAnswerHandler(gameId, useGlobalState.questionNum!, {
+  //         code: -1,
+  //         value: ''
+  //       })
+  //         .then((res) => {
+  //           if (res.data.status) {
+  //             setResponse((cur) => cur + 1)
+  //             if (state.gameStatus) {
+  //               setState(initialState)
+  //             } else {
+  //               setState((cur) => ({
+  //                 ...cur,
+  //                 question: 'Loading...',
+  //                 hints: []
+  //               }))
+  //             }
+  //           }
+  //         })
+  //         .catch((err) => console.log(err))
+  //     } else {
+  //     }
+  //   }, 1000)
+
+  //   // HINTS
+  //   const nextHintTimer = (time / 3) * 1000
+  //   let number = 0
+
+  //   setHints([state.hints[0]])
+  //   const hintsInterval = setInterval(() => {
+  //     if (number === 0) {
+  //       number += 1
+  //       setHints((hints) => hints.concat(state.hints[1]))
+  //     } else if (number === 1) {
+  //       number += 1
+  //       setHints((hints) => hints.concat(state.hints[2]))
+  //     } else if (number === 2) {
+  //       clearInterval(hintsInterval)
+  //       setState(initialState)
+  //       setHints([])
+  //     }
+  //   }, nextHintTimer)
+
+  //   return () => {
+  //     clearInterval(timeInterval)
+  //     clearInterval(hintsInterval)
+  //   }
+  // }, [updatedState, gameId, time, useGlobalState.questionNum, state.hints, state.gameStatus])
 
   // BTN METHOD
   const responseHandler = (answer: Answer) => {
@@ -206,9 +227,9 @@ const GamePage = () => {
 
   return (
     <div className={classes.root}>
-      <div className={classes.clock}>{counter}</div>
-      <QuestionCard question={state.question} hints={hints} />
-      <div className={classes.btnArea}>
+      {/* <div className={classes.clock}>{counter}</div> */}
+      <QuestionCard question={state.question} hints={hints} progressCounter={counter}/>
+      {/* <div className={classes.btnArea}>
         <GameButton
           title={state.answers[0].value}
           notActive={activeBtn}
@@ -229,7 +250,7 @@ const GamePage = () => {
           notActive={activeBtn}
           onBtnClick={() => responseHandler(state.answers[3])}
         />
-      </div>
+      </div> */}
       {isLoading ? <LoadingSpinner /> : null}
     </div>
   )

@@ -15,9 +15,10 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface mainButtonProps {
-  onBtnClick: () => void,
-  mainBtnName: string,
+  onBtnClick: () => void
+  mainBtnName: string
   notActive: boolean
+  colorType?: string
 }
 
 const MainButton = (props: mainButtonProps) => {
@@ -25,7 +26,12 @@ const MainButton = (props: mainButtonProps) => {
 
   return (
     <div className={classes.root}>
-      <Button variant="contained" color="primary" onClick={props.onBtnClick} disabled={props.notActive}>
+      <Button
+        variant="contained"
+        color={props.colorType === undefined ? 'primary' : 'secondary'}
+        onClick={props.onBtnClick}
+        disabled={props.notActive}
+      >
         {props.mainBtnName}
       </Button>
     </div>

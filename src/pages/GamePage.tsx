@@ -85,22 +85,16 @@ const GamePage = () => {
 
     setIsLoading(true)
     if (state.gameStatus === false) {
-      return () => {
-        console.log('THE END...')
-        setUseGlobalState(cur => ({
-          ...cur,
-          header: 'WELL DONE !!!'
-        }))
-        history.push('/result')
-      }
+      console.log('THE END...')
+      setUseGlobalState((cur) => ({
+        ...cur,
+        header: 'WELL DONE !!!'
+      }))
+      history.push('/result')
     } else {
       fetchDataHandler(gameId)
-        .then((res) => {         
+        .then((res) => {
           const newRes = res.data.question
-          // console.log(res.data.question)          
-          // console.log(typeof res.data.question.questionNumber)
-          // console.log('Next Question Req...')
-
           setUseGlobalState((cur) => ({
             ...cur,
             header: `Question #${res.data.question.questionNumber}`,
@@ -174,13 +168,20 @@ const GamePage = () => {
       clearInterval(timeInterval)
       clearInterval(hintsInterval)
     }
-  }, [updatedState, gameId, time, useGlobalState.questionNum, state.hints, state.gameStatus])
+  }, [
+    updatedState,
+    gameId,
+    time,
+    useGlobalState.questionNum,
+    state.hints,
+    state.gameStatus
+  ])
 
   // BTN METHOD
   const responseHandler = (answer: Answer) => {
     // console.log('I was clicked...')
 
-    const questionNumber = state.questionNumber - 1
+    const questionNumber = useGlobalState.questionNum! - 1
     setIsLoading(true)
     setActiveBtn(true)
 
@@ -207,7 +208,7 @@ const GamePage = () => {
   return (
     <div className={classes.root}>
       <div className={classes.clock}>{counter}</div>
-      <QuestionCard question={state.question} hints={hints} />
+      <QuestionCard question={state.question} hints={hints} progressCounter={40}/>
       <div className={classes.btnArea}>
         <GameButton
           title={state.answers[0].value}

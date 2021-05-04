@@ -8,7 +8,15 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import GameMode from '../components/GameMode'
 import SinglePlayerMode from '../components/SinglePlayerMode'
 
-enum Handlers {
+export interface InitialStateType {
+  gameMode: number
+  nickname: string
+  timer: string
+  level: string
+  quantity: string
+}
+
+export enum Handlers {
   GAMEMODE_HANDLER = 'GAMEMODE_HANDLER',
   NICKNAME_HANDLER = 'NICKNAME_HANDLER',
   TIMER_HANDLER = 'TIMER_HANDLER',
@@ -22,10 +30,19 @@ type RequestBody = {
   level: number
 }
 
+const initialState: InitialStateType = {
+  gameMode: 0,
+  nickname: '',
+  timer: '9',
+  level: 'EASY',
+  quantity: '5'
+}
+
 const StartPage = () => {
   const classes = useStyles()
-
+  const history = useHistory()
   const setGlobalNickname = useGameState()[1]
+
   const [gameMode, setGameMode] = useState<number>(0)
 
   const [nickname, setNickname] = useState('')
@@ -34,7 +51,6 @@ const StartPage = () => {
   const [quantity, setQuantity] = useState('5')
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const history = useHistory()
 
   const handler = (action: { type: string; value: string | number }) => {
     switch (action.type) {
@@ -84,7 +100,7 @@ const StartPage = () => {
         }))
       })
       .then(() => {
-        history.push('/game')
+        history.push('/waitingroom')
       })
       .catch((err) => console.log(err))
   }
