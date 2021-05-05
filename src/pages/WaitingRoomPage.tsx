@@ -4,12 +4,14 @@ import { useGameState } from '../providers/GameStateProvider'
 import { makeStyles } from '@material-ui/core/styles'
 
 import MainButton from '../components/MainButton'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 const WaitingRoomPage = () => {
   const classes = useStyles()
   const history = useHistory()
   const setGameState = useGameState()[1]
   const [counter, setCounter] = useState<number>(3)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
     setGameState(cur => ({...cur, header: 'GET READY!'}))
@@ -20,15 +22,20 @@ const WaitingRoomPage = () => {
     leftTime = counter
     const interval = setInterval(() => {
       leftTime = leftTime - 1
-      if (leftTime  > -1) {
+      if (leftTime > 0) {
         setCounter(cur => cur - 1)
+      } else {
+        setIsLoading(true)
+        setTimeout(() => {
+          history.push('/game')
+        }, 1000)
       }
     }, 1000)
 
     return () => {
       clearInterval(interval)
     }
-  }, [counter])
+  }, [counter, history])
 
   return (
     <div className={classes.root}>
@@ -40,6 +47,7 @@ const WaitingRoomPage = () => {
         mainBtnName={'LEAVE GAME'}
         onBtnClick={() => history.push('/')}
       />
+      {isLoading ? <LoadingSpinner /> : null}
     </div>
   )
 }

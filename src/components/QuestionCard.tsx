@@ -23,7 +23,7 @@ const QuestionCard = (props: QuestionCardProps) => {
         image={PeopleCatPhoto}
         title="People"
       />
-      <Counter progressValue={props.progressCounter}/>
+      <Counter progressValue={props.progressCounter} />
       <CardContent className={classes.card}>
         <Typography
           style={{ textAlign: 'left' }}
@@ -36,9 +36,9 @@ const QuestionCard = (props: QuestionCardProps) => {
         {props.hints[0] !== '' ? (
           <Typography variant="body2" color="textPrimary" component="span">
             <ol style={{ textAlign: 'left' }}>
-              {props.hints.map((el, index) => (
-                <li key={index}>{el}</li>
-              ))}
+              {props.hints.map((el, index) => {
+                return <li key={index}>{el}</li>
+              })}
             </ol>
           </Typography>
         ) : null}
@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: '#ffd900',
     '@media only screen and (min-width: 750px)': {
       maxHeight: 500,
-      maxWidth: 600
+      width: 600
     }
   },
   media: {

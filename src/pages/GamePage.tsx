@@ -1,237 +1,171 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer } from 'react'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
-import axios from 'axios'
 import { useGameState } from '../providers/GameStateProvider'
+
+import { gamePageReducerFunction } from '../functions/tools/gamePageReducer'
+import { hintsHandler } from '../functions/other/hintsHandler'
+import { timeHandler } from '../functions/other/timeHandler'
+import {
+  fetchingData,
+  uploadingAnswerData
+} from '../functions/other/singleGameHandlers'
 
 import LoadingSpinner from '../components/LoadingSpinner'
 import QuestionCard from '../components/QuestionCard'
 import GameButton from '../components/GameButton'
 
-// TYPE OF STATE
-type State = {
-  category: string
-  questionNumber: number
-  question: string
-  hints: string[]
-  answers: {
-    code: number
-    value: string
-  }[]
-  gameStatus: boolean
-}
-
-type Answer = { code: number; value: string }
-
-//INITIAL STATES
-const initialState: State = {
-  category: '',
-  questionNumber: 0,
-  question: 'Loading...',
-  hints: [],
-  answers: [
-    { code: -1, value: 'A' },
-    { code: -1, value: 'B' },
-    { code: -1, value: 'C' },
-    { code: -1, value: 'D' }
-  ],
-  gameStatus: true
-}
-
-const fetchDataHandler = async (gameId: string) => {
-  const id = gameId
-  const fetchedData = await axios.get(
-    `http://localhost:8080/singleplayer/game/${id}`
-  )
-  return fetchedData
-}
-
-const sendAnswerHandler = async (
-  gameId: string,
-  question: number,
-  data: {
-    code: number
-    value: string
+export interface State {
+  nextQuestion: {
+    category: string
+    questionNumber: number
+    question: string
+    hints: string[]
+    answers: {
+      code: number
+      value: string
+    }[]
+    gameStatus: boolean
   }
-) => {
-  const id = gameId
-  const fetchedData = await axios.post(
-    `http://localhost:8080/singleplayer/game/${id}/question/${question}`,
-    data
-  )
-  return fetchedData
+  displayedHints: string[]
+  counter: number
+  shouldTimerAndHintsGoOn: boolean
+  gameRounds: number
+  shouldReqNextQuestion: boolean
+  questionRounds: number
+  shouldSendRes: boolean
+  resRounds: number
+  loading: boolean
+  deactivatedBtn: boolean
+}
+
+export type Answer = { code: number; value: string }
+
+export enum Handlers {
+  COUNTER_HANDLER = 'COUNTER_HANDLER',
+  HINTS_HANDLER = 'HINTS_HANDLER',
+  QUESTION_UPDATE_HANDLER = 'QUESTION_UPDATE_HANDLER',
+  SHOULD_GO_ON_HANDLER = 'SHOULD_GO_ON_HANDLER',
+  LOADING_HANDLER = 'LOADING_HANDLER',
+  ROUND_HANDLER = 'ROUND_HANDLER',
+  RESET_HANDLER = 'RESET_HANDLER',
+  BUTTON_HANDLER = 'BUTTON_HANDLER',
+  UPLOADING_ANSWER_HANDLER = 'UPLOADING_ANSWER_HANDLER',
+  REQUESTING_QUESTION_HANDLER = 'REQUESTING_QUESTION_HANDLER'
+}
+
+export const initialState: State = {
+  nextQuestion: {
+    category: '',
+    questionNumber: 0,
+    question: 'Loading...',
+    hints: [],
+    answers: [
+      { code: -1, value: 'A' },
+      { code: -1, value: 'B' },
+      { code: -1, value: 'C' },
+      { code: -1, value: 'D' }
+    ],
+    gameStatus: true
+  },
+  displayedHints: [],
+  counter: 0,
+  shouldTimerAndHintsGoOn: false,
+  gameRounds: 0,
+  shouldReqNextQuestion: true,
+  questionRounds: 0,
+  shouldSendRes: false,
+  resRounds: 0,
+  loading: true,
+  deactivatedBtn: false
 }
 
 const GamePage = () => {
   const classes = useStyles()
   const [useGlobalState, setUseGlobalState] = useGameState()
   const history = useHistory()
-
-  const [state, setState] = useState(initialState)
-  const [counter, setCounter] = useState(0)
-  const [hints, setHints] = useState<string[]>([''])
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-
-  const [updatedState, setUpdatedState] = useState<number>(0)
-  const [response, setResponse] = useState<number>(0)
-  const [activeBtn, setActiveBtn] = useState<boolean>(false)
+  const [state, dispatch] = useReducer(gamePageReducerFunction, initialState)
 
   const time = useGlobalState.timer
   const gameId = useGlobalState.gameId
 
-  //DATA EFFECT
   useEffect(() => {
-    // console.log(state.gameStatus)
-
-    setIsLoading(true)
-    if (state.gameStatus === false) {
-      console.log('THE END...')
-      setUseGlobalState((cur) => ({
-        ...cur,
-        header: 'WELL DONE !!!'
-      }))
+    if (!state.shouldReqNextQuestion) {
+    //   console.log('THE END')
+      setUseGlobalState(cur => ({...cur, header: 'WELL DONE!!!'}))
       history.push('/result')
     } else {
-      fetchDataHandler(gameId)
-        .then((res) => {
-          const newRes = res.data.question
-          setUseGlobalState((cur) => ({
-            ...cur,
-            header: `Question #${res.data.question.questionNumber}`,
-            questionNum: res.data.question.questionNumber
-          }))
-          setState(newRes)
-          setUpdatedState((cur) => cur + 1)
-          setCounter(time)
-          setActiveBtn(false)
-          setIsLoading(false)
-        })
-        .catch((err) => console.log(err))
+      fetchingData(gameId, dispatch)
     }
-  }, [response, gameId, time, setUseGlobalState, state.gameStatus, history])
+  }, [state.shouldReqNextQuestion, state.questionRounds, gameId, history, setUseGlobalState])
 
-  // USER DISPLAY EFFECT
   useEffect(() => {
-    if (!state.hints.length) return () => {}
-    //TIMER
-    let leftTime: number
-    leftTime = time
-    const timeInterval = setInterval(() => {
-      leftTime = leftTime - 1
-      setCounter((counter) => counter - 1)
-      if (leftTime === 0) {
-        clearInterval(timeInterval)
-        setIsLoading(true)
-        sendAnswerHandler(gameId, useGlobalState.questionNum!, {
-          code: -1,
-          value: ''
-        })
-          .then((res) => {
-            if (res.data.status) {
-              setResponse((cur) => cur + 1)
-              if (state.gameStatus) {
-                setState(initialState)
-              } else {
-                setState((cur) => ({
-                  ...cur,
-                  question: 'Loading...',
-                  hints: []
-                }))
-              }
-            }
-          })
-          .catch((err) => console.log(err))
-      } else {
-      }
-    }, 1000)
-
-    // HINTS
-    const nextHintTimer = (time / 3) * 1000
-    let number = 0
-
-    setHints([state.hints[0]])
-    const hintsInterval = setInterval(() => {
-      if (number === 0) {
-        number += 1
-        setHints((hints) => hints.concat(state.hints[1]))
-      } else if (number === 1) {
-        number += 1
-        setHints((hints) => hints.concat(state.hints[2]))
-      } else if (number === 2) {
-        clearInterval(hintsInterval)
-        setState(initialState)
-        setHints([])
-      }
-    }, nextHintTimer)
-
+    if (!state.shouldTimerAndHintsGoOn) return () => {}
+    dispatch({ type: Handlers.LOADING_HANDLER, value: false })
+    const hint = hintsHandler(time, state.nextQuestion.hints, dispatch)
+    const timer = timeHandler(time, 0, dispatch)
     return () => {
-      clearInterval(timeInterval)
-      clearInterval(hintsInterval)
+      clearTimeout(hint)
+      clearTimeout(timer)
     }
   }, [
-    updatedState,
+    state.gameRounds,
+    state.shouldTimerAndHintsGoOn,
+    state.nextQuestion.hints,
     gameId,
-    time,
-    useGlobalState.questionNum,
-    state.hints,
-    state.gameStatus
+    time
+  ])
+
+  useEffect(() => {
+    if (!state.shouldSendRes) return () => {}
+    const nextQuestionNumber = state.nextQuestion.questionNumber - 1
+    uploadingAnswerData(
+      gameId,
+      nextQuestionNumber,
+      { code: -1, value: '' },
+      dispatch,
+      state.nextQuestion.gameStatus
+    )
+  }, [
+    state.shouldSendRes,
+    state.resRounds,
+    state.nextQuestion.questionNumber,
+    state.nextQuestion.gameStatus,
+    gameId
   ])
 
   // BTN METHOD
   const responseHandler = (answer: Answer) => {
-    // console.log('I was clicked...')
-
-    const questionNumber = useGlobalState.questionNum! - 1
-    setIsLoading(true)
-    setActiveBtn(true)
-
-    sendAnswerHandler(gameId, questionNumber, answer)
-      .then((res) => {
-        if (res.data.status) {
-          setResponse((cur) => cur + 1)
-          if (state.gameStatus) {
-            setState(initialState)
-          } else {
-            setState((cur) => ({
-              ...cur,
-              question: 'Loading...',
-              hints: [],
-              gameStatus: false
-            }))
-          }
-          setHints([])
-        }
-      })
-      .catch((err) => console.log(err))
+    const nextQuestionNumber = state.nextQuestion.questionNumber - 1
+    uploadingAnswerData(
+      gameId,
+      nextQuestionNumber,
+      answer,
+      dispatch,
+      state.nextQuestion.gameStatus
+    )
   }
 
   return (
     <div className={classes.root}>
-      <div className={classes.clock}>{counter}</div>
-      <QuestionCard question={state.question} hints={hints} progressCounter={40}/>
+      <QuestionCard
+        question={state.nextQuestion.question}
+        hints={state.displayedHints}
+        progressCounter={state.counter}
+      />
       <div className={classes.btnArea}>
-        <GameButton
-          title={state.answers[0].value}
-          notActive={activeBtn}
-          onBtnClick={() => responseHandler(state.answers[0])}
-        />
-        <GameButton
-          title={state.answers[1].value}
-          notActive={activeBtn}
-          onBtnClick={() => responseHandler(state.answers[1])}
-        />
-        <GameButton
-          title={state.answers[2].value}
-          notActive={activeBtn}
-          onBtnClick={() => responseHandler(state.answers[2])}
-        />
-        <GameButton
-          title={state.answers[3].value}
-          notActive={activeBtn}
-          onBtnClick={() => responseHandler(state.answers[3])}
-        />
+        {state.nextQuestion.answers.map((el: Answer, index: number) => {
+          return (
+            <GameButton
+              key={index}
+              title={el.value}
+              notActive={state.deactivatedBtn}
+              onBtnClick={() => responseHandler(el)}
+            />
+          )
+        })}
       </div>
-      {isLoading ? <LoadingSpinner /> : null}
+      {state.loading ? <LoadingSpinner /> : null}
     </div>
   )
 }
@@ -250,21 +184,15 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.primary
   },
   btnArea: {
-    width: '100%',
+    width: '90%',
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    alignItems: 'center'
-  },
-  clock: {
-    color: 'white',
-    fontSize: '1.8rem',
-    marginTop: 5,
-    height: 40,
-    width: 300,
-    backgroundColor: theme.palette.primary.dark,
-    textAlign: 'center',
-    borderRadius: 5
+    alignItems: 'center',
+    '@media only screen and (min-width: 750px)': {
+      justifyContent: 'space-between',
+      width: '100%'
+    }
   }
 }))
 

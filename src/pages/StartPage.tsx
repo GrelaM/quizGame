@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useReducer } from 'react'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
-import axios from 'axios'
 import { useGameState } from '../providers/GameStateProvider'
+
+import { startPageReducerFunction } from '../functions/tools/startPageReducer'
+import { singleGameReq } from '../functions/connection/singleGameReq'
 
 import LoadingSpinner from '../components/LoadingSpinner'
 import GameMode from '../components/GameMode'
@@ -24,12 +26,6 @@ export enum Handlers {
   QUANTITY_HANDLER = 'QUANTITY_HANDLER'
 }
 
-type RequestBody = {
-  quantity: number
-  time: number
-  level: number
-}
-
 const initialState: InitialStateType = {
   gameMode: 0,
   nickname: '',
@@ -42,104 +38,76 @@ const StartPage = () => {
   const classes = useStyles()
   const history = useHistory()
   const setGlobalNickname = useGameState()[1]
-
-  const [gameMode, setGameMode] = useState<number>(0)
-
-  const [nickname, setNickname] = useState('')
-  const [timer, setTimer] = useState('9')
-  const [level, setLevel] = useState('EASY')
-  const [quantity, setQuantity] = useState('5')
-
+  const [state, dispatch] = useReducer(startPageReducerFunction, initialState)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const handler = (action: { type: string; value: string | number }) => {
-    switch (action.type) {
-      case Handlers.GAMEMODE_HANDLER:
-        return setGameMode(Number(action.value))
-      case Handlers.NICKNAME_HANDLER:
-        return setNickname(action.value.toString())
-      case Handlers.TIMER_HANDLER:
-        return setTimer(action.value.toString())
-      case Handlers.QUANTITY_HANDLER:
-        return setQuantity(action.value.toString())
-      case Handlers.LEVEL_HANDLER:
-        return setLevel(action.value.toString())
-    }
-  }
-
-  const startGameHandler = () => {
+  const startGameHandler = async () => {
     setIsLoading(true)
+    try {
+      const gameRequest = await singleGameReq(
+        Number(state.quantity),
+        Number(state.timer),
+        state.level
+      )
 
-    const levelHandler = (level: string) => {
-      switch(level) {
-        case 'EASE':
-          return 1
-        case 'MEDIUM':
-          return 2
-        case 'HARD':
-          return 3
-      }
-    }
+      if (gameRequest !== undefined) {
+        const fetchedData: {
+          data: {
+            gameId: string
+            artificialGameId: string
+            timer: number
+          }
+        } = gameRequest
 
-    const data: RequestBody = {
-      quantity: Number(quantity),
-      time: Number(timer),
-      level: levelHandler(level) || 1
-    }
-
-    axios
-      .post('http://localhost:8080/game/newgame', data)
-      .then((res) => {
-        console.log(`${res.data.message} ID: ${res.data.artificialGameId}`)
         setGlobalNickname((current) => ({
           ...current,
-          nickname: nickname,
-          gameId: res.data.gameId,
-          artificialGameId: res.data.artificialGameId,
-          timer: res.data.timer // SECONDS!!!
+          nickname: state.nickname,
+          gameId: fetchedData.data.gameId,
+          artificialGameId: fetchedData.data.artificialGameId,
+          timer: fetchedData.data.timer // SECONDS!!!
         }))
-      })
-      .then(() => {
-        history.push('/waitingroom')
-      })
-      .catch((err) => console.log(err))
+      }
+      history.push('/waitingroom')
+      setIsLoading(false)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
-  let mode = (
-    <GameMode
-      gameModeHandler={(mode) =>
-        handler({ type: Handlers.GAMEMODE_HANDLER, value: mode })
-      }
-    />
-  )
-  if (gameMode === 1) {
-    //SINGLE PLAYER MODE
+  let mode
+  if (state.gameMode === 0) {
     mode = (
-      <SinglePlayerMode
-        nicknameHandler={(value) =>
-          handler({ type: Handlers.NICKNAME_HANDLER, value: value })
-        }
-        nickname={nickname ? true : false}
-        startGameHandler={startGameHandler}
-        timerValue={timer}
-        levelValue={level}
-        questionQuantity={quantity}
-        timeHandler={(event) =>
-          handler({ type: Handlers.TIMER_HANDLER, value: event })
-        }
-        levelHandler={(event) =>
-          handler({ type: Handlers.LEVEL_HANDLER, value: event })
-        }
-        quantityHandler={(event) =>
-          handler({ type: Handlers.QUANTITY_HANDLER, value: event })
-        }
+      <GameMode
         gameModeHandler={(mode) =>
-          handler({ type: Handlers.GAMEMODE_HANDLER, value: mode })
+          dispatch({ type: Handlers.GAMEMODE_HANDLER, value: mode })
         }
       />
     )
-  } else if (gameMode === 2) {
-    //MULTIPAYER MODE
+  } else if (state.gameMode === 1) {
+    mode = (
+      <SinglePlayerMode
+        nickname={state.nickname ? true : false}
+        timerValue={state.timer}
+        levelValue={state.level}
+        questionQuantity={state.quantity}
+        startGameHandler={startGameHandler}
+        nicknameHandler={(value) =>
+          dispatch({ type: Handlers.NICKNAME_HANDLER, value: value })
+        }
+        timeHandler={(event) =>
+          dispatch({ type: Handlers.TIMER_HANDLER, value: event })
+        }
+        levelHandler={(event) =>
+          dispatch({ type: Handlers.LEVEL_HANDLER, value: event })
+        }
+        quantityHandler={(event) =>
+          dispatch({ type: Handlers.QUANTITY_HANDLER, value: event })
+        }
+        gameModeHandler={(mode) =>
+          dispatch({ type: Handlers.GAMEMODE_HANDLER, value: mode })
+        }
+      />
+    )
   }
 
   return (
@@ -150,7 +118,7 @@ const StartPage = () => {
   )
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: 'flex',
     flexDirection: 'column',

@@ -10,7 +10,7 @@ import StartPage from './pages/StartPage'
 import WaitingRoomPage from './pages/WaitingRoomPage'
 import GamePage from './pages/GamePage'
 import EndGamePage from './pages/EndGamePage'
-import Test from './pages/Z-TEST'
+import Test from './pages/Test'
 
 function App() {
   return (
