@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core/styles'
-import { mainLinearGradient } from '../constants/main-theme-provider'
+import { mainLinearGradient } from '../../constants/main-theme-provider'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   imageContainer: {
     display: 'flex',
     flexDirection: 'column',
@@ -13,6 +13,17 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
     background: mainLinearGradient
   },
+  smallImageContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    overflow: 'hidden',
+    background: mainLinearGradient
+  },
   image: {
     width: '95%',
     height: '95%',
@@ -20,11 +31,11 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const GamePicture = (props: {picture: string}) => {
+const GamePicture = (props: {picture: string, size?: string}) => {
   const classes = useStyles()
 
   return (
-    <div className={classes.imageContainer}>
+    <div className={props.size === 'small' ? classes.smallImageContainer : classes.imageContainer}>
       <img src={props.picture} className={classes.image} alt="" />
     </div>
   )

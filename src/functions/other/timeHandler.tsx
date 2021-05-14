@@ -1,4 +1,4 @@
-import { Handlers } from '../../pages/GamePage'
+import { Handlers } from '../../pages/singleplayer/GamePage'
 
 type NextQuestion = {
   nextQuestion: {

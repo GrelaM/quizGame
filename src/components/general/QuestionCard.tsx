@@ -4,7 +4,7 @@ import CardContent from '@material-ui/core/CardContent'
 import CardMedia from '@material-ui/core/CardMedia'
 import Typography from '@material-ui/core/Typography'
 
-import PeopleCatPhoto from '../assets/img/peopleCat2.jpg'
+import PeopleCatPhoto from '../../assets/img/peopleCat2.jpg'
 import Counter from './Counter'
 
 interface QuestionCardProps {

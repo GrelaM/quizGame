@@ -12,7 +12,7 @@ interface DataContextType {
 const initialState = {
     header: 'Quiz Game',
     nickname: 'Anonymous',
-    gameId: '6090415a554ed01cbc431b31',
+    gameId: '',
     artificialGameId: '#',
     timer: 15,
     questionNum: 0

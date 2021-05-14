@@ -1,19 +1,19 @@
 import { useEffect, useReducer } from 'react'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
-import { useGameState } from '../providers/GameStateProvider'
+import { useGameState } from '../../providers/GameStateProvider'
 
-import { gamePageReducerFunction } from '../functions/tools/gamePageReducer'
-import { hintsHandler } from '../functions/other/hintsHandler'
-import { timeHandler } from '../functions/other/timeHandler'
+import { gamePageReducerFunction } from '../../functions/tools/gamePageReducer'
+import { hintsHandler } from '../../functions/other/hintsHandler'
+import { timeHandler } from '../../functions/other/timeHandler'
 import {
   fetchingData,
   uploadingAnswerData
-} from '../functions/other/singleGameHandlers'
+} from '../../functions/other/singleGameHandlers'
 
-import LoadingSpinner from '../components/LoadingSpinner'
-import QuestionCard from '../components/QuestionCard'
-import GameButton from '../components/GameButton'
+import LoadingSpinner from '../../components/general/LoadingSpinner'
+import QuestionCard from '../../components/general/QuestionCard'
+import GameButton from '../../components/general/GameButton'
 
 export interface State {
   nextQuestion: {
@@ -45,11 +45,7 @@ export enum Handlers {
   COUNTER_HANDLER = 'COUNTER_HANDLER',
   HINTS_HANDLER = 'HINTS_HANDLER',
   QUESTION_UPDATE_HANDLER = 'QUESTION_UPDATE_HANDLER',
-  SHOULD_GO_ON_HANDLER = 'SHOULD_GO_ON_HANDLER',
   LOADING_HANDLER = 'LOADING_HANDLER',
-  ROUND_HANDLER = 'ROUND_HANDLER',
-  RESET_HANDLER = 'RESET_HANDLER',
-  BUTTON_HANDLER = 'BUTTON_HANDLER',
   UPLOADING_ANSWER_HANDLER = 'UPLOADING_ANSWER_HANDLER',
   REQUESTING_QUESTION_HANDLER = 'REQUESTING_QUESTION_HANDLER'
 }
@@ -82,8 +78,8 @@ export const initialState: State = {
 
 const GamePage = () => {
   const classes = useStyles()
-  const [useGlobalState, setUseGlobalState] = useGameState()
   const history = useHistory()
+  const [useGlobalState, setUseGlobalState] = useGameState()
   const [state, dispatch] = useReducer(gamePageReducerFunction, initialState)
 
   const time = useGlobalState.timer
@@ -102,6 +98,7 @@ const GamePage = () => {
   useEffect(() => {
     if (!state.shouldTimerAndHintsGoOn) return () => {}
     dispatch({ type: Handlers.LOADING_HANDLER, value: false })
+    setUseGlobalState(cur => ({...cur, header: `Question #${state.nextQuestion.questionNumber}`}))
     const hint = hintsHandler(time, state.nextQuestion.hints, dispatch)
     const timer = timeHandler(time, 0, dispatch)
     return () => {
@@ -109,9 +106,11 @@ const GamePage = () => {
       clearTimeout(timer)
     }
   }, [
+    setUseGlobalState,
     state.gameRounds,
     state.shouldTimerAndHintsGoOn,
     state.nextQuestion.hints,
+    state.nextQuestion.questionNumber,
     gameId,
     time
   ])

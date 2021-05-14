@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-around',
     alignItems: 'center',
     flexGrow: 1,
-    paddingBlock: 15
+    paddingBlock: 20
   }
 }))
 

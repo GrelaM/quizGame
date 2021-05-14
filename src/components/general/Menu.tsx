@@ -1,7 +1,7 @@
 import Container from '@material-ui/core/Container'
 import { makeStyles } from '@material-ui/core/styles'
-import  {mainLinearGradient} from '../constants/main-theme-provider'
-import {useGameState} from '../providers/GameStateProvider'
+import  {mainLinearGradient} from '../../constants/main-theme-provider'
+import {useGameState} from '../../providers/GameStateProvider'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -12,6 +12,9 @@ const useStyles = makeStyles((theme) => ({
     "@media (min-width: 1280px)": {
       maxWidth: '100%'
     }
+  },
+  text: {
+    textTransform: 'uppercase'
   }
 }))
 
@@ -21,7 +24,7 @@ const StartPage = () => {
 
   return (
     <Container className={classes.root}>
-      <h1>{state.header}</h1>
+      <h1 className={classes.text}>{state.header}</h1>
     </Container>
   )
 }

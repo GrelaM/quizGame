@@ -1,4 +1,4 @@
-import { State, Handlers, initialState } from '../../pages/GamePage'
+import { State, Handlers, initialState } from '../../pages/singleplayer/GamePage'
 
 type NextQuestion = {
   nextQuestion: {

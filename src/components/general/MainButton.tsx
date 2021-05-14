@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button'
 const useStyles = makeStyles((theme) => ({
   root: {
     '& > *': {
-      minWidth: '240px',
+      minWidth: '260px',
       margin: theme.spacing(1),
       padding: '12px 40px',
       color: theme.palette.text.secondary,

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-import { useGameState } from '../providers/GameStateProvider'
+import { useGameState } from '../../providers/GameStateProvider'
 import { makeStyles } from '@material-ui/core/styles'
 
-import MainButton from '../components/MainButton'
-import LoadingSpinner from '../components/LoadingSpinner'
+import MainButton from '../../components/general/MainButton'
+import LoadingSpinner from '../../components/general/LoadingSpinner'
 
 const WaitingRoomPage = () => {
   const classes = useStyles()
@@ -37,6 +37,11 @@ const WaitingRoomPage = () => {
     }
   }, [counter, history])
 
+  const leaveGameHandler = () => {
+    window.localStorage.removeItem('game')
+    history.push('/')
+  }
+
   return (
     <div className={classes.root}>
       <h2 className={classes.text}>Your game starts in:</h2>
@@ -45,7 +50,7 @@ const WaitingRoomPage = () => {
         colorType={'secondary'}
         notActive={false}
         mainBtnName={'LEAVE GAME'}
-        onBtnClick={() => history.push('/')}
+        onBtnClick={leaveGameHandler}
       />
       {isLoading ? <LoadingSpinner /> : null}
     </div>

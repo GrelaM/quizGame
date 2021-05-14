@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
-import { useGameState } from '../providers/GameStateProvider'
+import { useGameState } from '../../providers/GameStateProvider'
 import axios from 'axios'
 
-import Picture from '../assets/img/smile.jpg'
-import GamePicture from '../components/GamePicture'
-import MainButton from '../components/MainButton'
-import LoadingSpinner from '../components/LoadingSpinner'
+import Picture from '../../assets/img/smile.jpg'
+import GamePicture from '../../components/general/GamePicture'
+import MainButton from '../../components/general/MainButton'
+import LoadingSpinner from '../../components/general/LoadingSpinner'
 
 type ResultsType = {
   points: number
@@ -47,6 +47,7 @@ const EndGamePage = () => {
         }
         setResults(resultState)
         setIsLoading(false)
+        window.localStorage.removeItem('game')
       })
       .catch((err) => console.log(err))
   }, [gameId])
@@ -60,6 +61,7 @@ const EndGamePage = () => {
       timer: 0,
       questionNum: 0
     })
+    window.localStorage.removeItem('game')
     history.push('/')
   }
 

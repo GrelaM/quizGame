@@ -38,7 +38,10 @@ export const singleGameReq = async (
       console.log(`${res.data.message} ID: ${res.data.artificialGameId}`)
       return (serverData = res)
     })
-    .catch((err) => console.log(err))
+    // .catch((err) => {
+    //   console.log(err)
+    //   console.log('Ups...')
+    // })
 
   return serverData
 }

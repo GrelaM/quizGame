@@ -1,4 +1,4 @@
-import { Answer, Handlers } from '../../pages/GamePage'
+import { Answer, Handlers } from '../../pages/singleplayer/GamePage'
 import { singleAnswerRes } from '../connection/singleAnswerRes'
 import { singleQuestionReq } from '../connection/singleQuestionReq'
 

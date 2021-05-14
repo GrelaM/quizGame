@@ -1,4 +1,4 @@
-import { Handlers } from '../../pages/GamePage'
+import { Handlers } from '../../pages/singleplayer/GamePage'
 
 export const hintsHandler = (
     time: number,

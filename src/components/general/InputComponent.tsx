@@ -19,6 +19,8 @@ const useStyles = makeStyles((theme) => ({
 
 interface inputComponentProps {
   onInputChange: (event: string) => void
+  type: string
+  label: string
 }
 
 const InputComponent = (props: inputComponentProps) => {
@@ -27,8 +29,9 @@ const InputComponent = (props: inputComponentProps) => {
   return (
     <form className={classes.root} noValidate autoComplete="off">
       <TextField
+        type={props.type}
         variant="outlined"
-        label="Enter Your Nickname..."
+        label={props.label}
         InputProps={{
           classes: {
             root: classes.root,
