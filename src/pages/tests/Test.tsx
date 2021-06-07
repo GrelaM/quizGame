@@ -1,8 +1,13 @@
+
+import PageLayout from '../../components/layout/PageLayout'
+import IntervalCard from '../../components/custom/global/IntervalCard'
+
 const Test = () => {
   return (
-    <h1>Testing arena...</h1>
+    <PageLayout>
+      <IntervalCard progress={10} />
+    </PageLayout>
   )
 }
-
 
 export default Test

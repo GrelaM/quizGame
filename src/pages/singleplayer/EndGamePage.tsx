@@ -1,126 +1,138 @@
-import { useEffect, useState } from 'react'
+import { Flex, Text } from '@chakra-ui/react'
+import { useEffect, useReducer } from 'react'
 import { useHistory } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
-import { useGameState } from '../../providers/GameStateProvider'
-import axios from 'axios'
+import { useGameState } from '../../providers/GlobalStateProvider'
+import { Handlers as GlobalHandlers } from '../../functions/tools/global/contextReducer'
+import { LocalStorage } from '../../constants/localStorage'
 
-import Picture from '../../assets/img/smile.jpg'
-import GamePicture from '../../components/general/GamePicture'
-import MainButton from '../../components/general/MainButton'
-import LoadingSpinner from '../../components/general/LoadingSpinner'
+import { getResultHandler } from '../../functions/other/singlePlayer/resultsHandlers'
+import {
+  Handlers,
+  initialState,
+  resultReducer
+} from '../../functions/tools/singlePlayer/resultsReducer'
 
-type ResultsType = {
-  points: number
-  correctAnswers: number
-  questionQuantity: number
-}
-
-const fetchResultsHandler = async (gameId: string) => {
-  const id = gameId
-  const fetchedData = await axios.get(
-    `http://localhost:8080/results/singlegame/${id}`
-  )
-  return fetchedData
-}
+import PageLayeout from '../../components/layout/PageLayout'
+import Picture from '../../components/custom/global/Picture'
+import Column from '../../components/layout/Column'
+import Btn from '../../components/custom/button/Btn'
+import StarLayout from '../../components/layout/StarLayout'
+import LoadingSpinner from '../../components/layout/LoadingSpinner'
 
 const EndGamePage = () => {
-  const classes = useStyles()
   const history = useHistory()
-  const gameState = useGameState()[0]
-  const [results, setResults] = useState<ResultsType>({
-    points: 0,
-    correctAnswers: 0,
-    questionQuantity: 0
-  })
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [state, dispatch] = useReducer(resultReducer, initialState)
   const [useGlobalState, setUseGlobalState] = useGameState()
 
-  const gameId = useGlobalState.gameId
+  const gameId = useGlobalState.singleGame.gameId
 
   useEffect(() => {
-    fetchResultsHandler(gameId)
-      .then((res) => {
-        const resultState: ResultsType = {
-          points: res.data.points,
-          correctAnswers: res.data.givenCorrectAnswers,
-          questionQuantity: res.data.questions
-        }
-        setResults(resultState)
-        setIsLoading(false)
-        window.localStorage.removeItem('game')
-      })
-      .catch((err) => console.log(err))
-  }, [gameId])
+    getResultHandler(gameId, dispatch, setUseGlobalState, () =>
+      window.localStorage.removeItem(LocalStorage.SINGLE_GAME)
+    )
+  }, [gameId, setUseGlobalState])
 
   const newGameHandler = () => {
-    setUseGlobalState({
-      header: 'Quiz Game',
-      nickname: 'Anonymous',
-      gameId: '',
-      artificialGameId: '#',
-      timer: 0,
-      questionNum: 0
-    })
-    window.localStorage.removeItem('game')
+    setUseGlobalState({ type: GlobalHandlers.RESET_STATE })
+    window.localStorage.removeItem(LocalStorage.SINGLE_GAME)
+    history.push('/')
+  }
+
+  const errorHandler = () => {
+    window.localStorage.removeItem(LocalStorage.SINGLE_GAME)
+    dispatch({ type: Handlers.TOGGLE_ALERT_HANDLER, value: false })
+    setUseGlobalState({ type: GlobalHandlers.CLEAR_ALERT_HANDLER })
     history.push('/')
   }
 
   return (
-    <div className={classes.root}>
-      {isLoading ? (
-        <LoadingSpinner />
+    <PageLayeout
+      toggleAlert={state.toggleAlert}
+      alertTimer={4500}
+      alertHandler={errorHandler}
+    >
+      {state.isLoading ? (
+        <LoadingSpinner toggleSpinner={state.isLoading} />
       ) : (
-        <div className={classes.center}>
-          <GamePicture picture={Picture} />
-          <div className={classes.textArea}>
-            <h2 style={{margin: '10px'}}>
-              Congratulations{' '}
-              <span style={{ color: '#268f00' }}>{gameState.nickname}</span>!!!
-            </h2>
-            <h3 style={{margin: '8px'}}>
-              Your result is:{' '}
-              <span style={{ color: '#268f00' }}>{results.points} points!</span>
-            </h3>
-            <h4 style={{margin: '8px'}}>
-              You gave:{' '}
-              <span style={{ color: '#268f00' }}>
-                {results.correctAnswers}/{results.questionQuantity} correct
-                answers.
-              </span>
-            </h4>
-          </div>
-          <MainButton
-            notActive={false}
-            mainBtnName={'New Game'}
-            onBtnClick={newGameHandler}
+        <Column>
+          <Picture type={'result'} size={'small'} />
+          <Flex
+            w="100%"
+            maxW={280}
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+            borderRadius={10}
+            bg={'rgba(255,255,255,0.35)'}
+            paddingBlock={4}
+            paddingInline={1}
+            marginBlock={4}
+            boxShadow="lg"
+          >
+            <Flex
+              w="100%"
+              flexDirection="column"
+              justifyContent="center"
+              alignItems="center"
+              fontSize="1.2em"
+              fontWeight="bold"
+              color="secondary.dark"
+            >
+              <Text mb={2} color="secondary.dark">
+                Congratulations
+              </Text>
+              <StarLayout>
+                <Text marginInline={1} color="primary.dark">
+                  {useGlobalState.user.nickname}
+                </Text>
+              </StarLayout>
+            </Flex>
+            <Flex
+              w="100%"
+              flexDirection="row"
+              justifyContent="center"
+              alignItems="center"
+              fontSize="1.1em"
+              color="text.primary.700"
+              mt={1}
+            >
+              <Text marginInline={1} fontWeight="400">
+                You've collected
+              </Text>
+              <Text marginInline={1} color="primary.dark" fontWeight="800">
+                {state.gameResults.points}
+              </Text>
+              points!
+            </Flex>
+            <Flex
+              w="100%"
+              flexDirection="row"
+              justifyContent="center"
+              alignItems="center"
+              fontSize="1em"
+              color="text.primary.700"
+              marginBlock={1}
+            >
+              <Text marginInline={1} fontWeight="400">
+                You gave:
+              </Text>
+              <Text marginInline={1} color="primary.dark" fontWeight="650">
+                {state.gameResults.correctAnswers} /{' '}
+                {state.gameResults.questionQuantity}
+              </Text>
+              correct answers.
+            </Flex>
+          </Flex>
+          <Btn
+            name={'New Game'}
+            type={'main'}
+            clickHandler={newGameHandler}
+            margin={'normal'}
           />
-        </div>
+        </Column>
       )}
-    </div>
+    </PageLayeout>
   )
 }
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    flex: 1,
-    padding: 5,
-    maxHeight: 450,
-    margin: 'auto'
-  },
-  center: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    flexGrow: 1
-  },
-  textArea: {
-    color: theme.palette.text.primary
-  }
-}))
 
 export default EndGamePage

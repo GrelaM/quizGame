@@ -1,12 +1,13 @@
+import { Flex } from '@chakra-ui/react'
 import { useReducer } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
 import { initialState, Handlers, SettingsObject } from './SettingsState'
-import { multiplayerSettingsReducer } from '../../functions/tools/multiplayerSettingsReducer'
+import { multiplayerSettingsReducer } from '../../functions/tools/multiplayer/multiplayerSettingsReducer'
 
-import MainButton from '../../components/general/MainButton'
-import GameSettings from '../../components/general/GameSettings'
+import Settings from '../../components/chakra/components/custom/Settings'
+import MainButton from '../../components/chakra/components/custom/MainButton'
 
 interface MultiplayerSettingsProps {
+  onBackClick: () => void
   creatingNewGameHandler: (data: {
     quantity: number
     time: number
@@ -15,7 +16,6 @@ interface MultiplayerSettingsProps {
 }
 
 const MultiplayerSettings = (props: MultiplayerSettingsProps) => {
-  const classes = useStyles()
   const [state, dispatch] = useReducer(multiplayerSettingsReducer, initialState)
   const settingsArray = Object.values(state)
 
@@ -24,43 +24,46 @@ const MultiplayerSettings = (props: MultiplayerSettingsProps) => {
   }
 
   return (
-    <div className={classes.root}>
+    <Flex
+      flexDirection="column"
+      justifyContent="center"
+      alignItems="center"
+      w="100%"
+      maxW={300}
+      paddingBlock={4}
+    >
       {settingsArray.map((el: SettingsObject, index: number) => {
         return (
-          <GameSettings
+          <Settings
             key={index}
             description={el.description}
-            label={el.label}
-            stateValue={el.currentState}
             options={el.variants}
+            stateValue={el.currentState}
+            label={el.label}
             settingsHandler={(event) => dispatchHandler(el.reducerType, event)}
-            custom={{ type: el.label, state: true }}
           />
         )
       })}
-      <MainButton
-        notActive={false}
-        mainBtnName={'Create New Game'}
-        onBtnClick={props.creatingNewGameHandler.bind(this, {
-          quantity: state.quantity.variants[state.quantity.currentState].value,
-          level: state.level.variants[state.level.currentState].value,
-          time: state.time.variants[state.time.currentState].value
-        })}
-      />
-    </div>
+      <Flex w="100%" direction="column" justifyContent="center" alignItems="center" maxH={80}>
+        <MainButton
+          name={'Create New Game'}
+          type={'main'}
+          clickHandler={props.creatingNewGameHandler.bind(this, {
+            quantity:
+              state.quantity.variants[state.quantity.currentState].value,
+            level: state.level.variants[state.level.currentState].value,
+            time: state.time.variants[state.time.currentState].value
+          })}
+        />
+        <MainButton 
+          margin={'small'}
+          type={'aux'}
+          name={'Back'}
+          clickHandler={props.onBackClick}
+        />
+      </Flex>
+    </Flex>
   )
 }
-
-const useStyles = makeStyles(() => ({
-  root: {
-    minWidth: 300,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    flexGrow: 1,
-    paddingBlock: 5
-  }
-}))
 
 export default MultiplayerSettings

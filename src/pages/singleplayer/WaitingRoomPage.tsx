@@ -1,41 +1,49 @@
+import { Flex } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-import { useGameState } from '../../providers/GameStateProvider'
-import { makeStyles } from '@material-ui/core/styles'
+import { useGameState } from '../../providers/GlobalStateProvider'
+import { Handlers as GlobalHandlers } from '../../functions/tools/global/contextReducer'
 
-import MainButton from '../../components/general/MainButton'
-import LoadingSpinner from '../../components/general/LoadingSpinner'
+import PageLayout from '../../components/layout/PageLayout'
+import LoadingSpinner from '../../components/layout/LoadingSpinner'
+import Btn from '../../components/custom/button/Btn'
+import IntervalCard from '../../components/custom/global/IntervalCard'
 
 const WaitingRoomPage = () => {
-  const classes = useStyles()
   const history = useHistory()
-  const setGameState = useGameState()[1]
-  const [counter, setCounter] = useState<number>(3)
+  const [gameState, setGameState] = useGameState()
+  const [counter, setCounter] = useState<number>(0)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
-    setGameState(cur => ({...cur, header: 'GET READY!'}))
-  }, [setGameState])
+    setGameState({
+      type: GlobalHandlers.HEADER_HANDLER,
+      value: `Game: ${gameState.singleGame.artificialGameId}`
+    })
+  }, [setGameState, gameState.singleGame.artificialGameId])
 
   useEffect(() => {
     let leftTime: number
-    leftTime = counter
+    leftTime = 0
+
     const interval = setInterval(() => {
-      leftTime = leftTime - 1
-      if (leftTime > 0) {
-        setCounter(cur => cur - 1)
+      if (leftTime < 3) {
+        leftTime = leftTime + 1 / 10
+        setCounter((cur) => cur + 100 / 3 / 10)
       } else {
         setIsLoading(true)
+        clearInterval(interval)
+
         setTimeout(() => {
           history.push('/game')
         }, 1000)
       }
-    }, 1000)
+    }, 100)
 
     return () => {
       clearInterval(interval)
     }
-  }, [counter, history])
+  }, [history])
 
   const leaveGameHandler = () => {
     window.localStorage.removeItem('game')
@@ -43,45 +51,25 @@ const WaitingRoomPage = () => {
   }
 
   return (
-    <div className={classes.root}>
-      <h2 className={classes.text}>Your game starts in:</h2>
-      <h1 className={classes.counter}>{counter}</h1>
-      <MainButton
-        colorType={'secondary'}
-        notActive={false}
-        mainBtnName={'LEAVE GAME'}
-        onBtnClick={leaveGameHandler}
-      />
-      {isLoading ? <LoadingSpinner /> : null}
-    </div>
+    <PageLayout>
+      <Flex
+        direction="column"
+        justifyContent="space-between"
+        alignItems="center"
+        flex={1}
+        w="100%"
+      >
+        <IntervalCard progress={counter} />
+        <Btn
+          name={'LEAVE GAME'}
+          type={'aux'}
+          clickHandler={leaveGameHandler}
+          margin={'normal'}
+        />
+      </Flex>
+      <LoadingSpinner toggleSpinner={isLoading} />
+    </PageLayout>
   )
 }
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flex: 1,
-    padding: 30
-  },
-  text: {
-    color: theme.palette.success.main
-  },
-  counter: {
-    color: theme.palette.text.secondary,
-    fontSize: '8rem',
-    marginBlock: 30,
-    backgroundColor: 'rgba(0, 88, 4,0.45)',
-    borderStyle: 'solid',
-    border: '4px',
-    borderColor: 'rgba(0, 88, 4,1)',
-    lineHeight: '180px',
-    height: 200,
-    width: 200,
-    borderRadius: 100
-  }
-}))
 
 export default WaitingRoomPage

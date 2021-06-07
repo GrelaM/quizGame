@@ -1,13 +1,15 @@
 import { useEffect, useReducer } from 'react'
 import { useHistory } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
 import { useGameState } from '../../providers/GameStateProvider'
+import { Box } from '@chakra-ui/react'
 
-import LoadingSpinner from '../../components/general/LoadingSpinner'
-import MainButton from '../../components/general/MainButton'
-import RecoveryDisplay from '../../components/general/RecoveryDisplay'
-import { recoveryPageReducerFunction } from '../../functions/tools/recoveryPageReducer'
-import { singleGameRecoveryReq } from '../../functions/other/singleGameRecovery'
+import LoadingSpinner from '../../components/chakra/components/layout/LoadingSpinner'
+import PageLayout from '../../components/chakra/components/layout/PageLayout'
+import Header from '../../components/chakra/components/custom/Header'
+import MainButton from '../../components/chakra/components/custom/MainButton'
+import RecoveryDisplay from '../../components/chakra/components/custom/DataDisplay'
+import { recoveryPageReducerFunction } from '../../functions/tools/singlePlayer/recoveryPageReducer'
+import { singleGameRecoveryReq } from '../../functions/other/singlePlayer/singleGameRecovery'
 
 export interface RecoveryStateType {
   user: string
@@ -19,7 +21,7 @@ export interface RecoveryStateType {
   message: string
 }
 
-interface LocalStorageType {
+export interface LocalStorageType {
   user: string
   gameSettings: {
     artificialGameId: string
@@ -31,7 +33,6 @@ interface LocalStorageType {
 
 export enum Handlers {
   PROCEED_GAME_HANDLER = 'PROCEED_GAME_HANDLER',
-  LOADING_HANDLER = 'LOADING_HANDLER',
   RECOVERED_DATA_HANDLER = 'RECOVERED_DATA_HANDLER'
 }
 
@@ -46,7 +47,6 @@ export const initialState: RecoveryStateType = {
 }
 
 const RecoveryPage = () => {
-  const classes = useStyles()
   const history = useHistory()
   const setGameState = useGameState()[1]
   const [state, dispatch] = useReducer(
@@ -58,7 +58,11 @@ const RecoveryPage = () => {
     const localStorage: LocalStorageType = JSON.parse(
       window.localStorage.getItem('game')!
     )
-    setGameState((cur) => ({ ...cur, nickname: localStorage.user, gameId: localStorage.gameSettings.gameId }))
+    setGameState((cur) => ({
+      ...cur,
+      nickname: localStorage.user,
+      gameId: localStorage.gameSettings.gameId
+    }))
     dispatch({ type: Handlers.RECOVERED_DATA_HANDLER, value: localStorage })
   }, [setGameState])
 
@@ -83,44 +87,39 @@ const RecoveryPage = () => {
   }
 
   return (
-    <div className={classes.root}>
+    <PageLayout>
+      <Header />
       <RecoveryDisplay
         message={state.message}
-        artificialGameId={state.artificialGameId}
-        user={state.user}
-        recoveredData={state.recoveredData}
+        displayInfo={[
+          { header: 'Game ID: ', message: state.artificialGameId },
+          { header: 'Established by: ', message: state.user }
+        ]}
+        fetchedData={state.recoveredData}
       />
-      <div className={classes.btnBox}>
+      <Box
+        w="90%"
+        maxW={300}
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+      >
         <MainButton
-          notActive={!state.proceedGame}
-          mainBtnName={'Continue Game'}
-          onBtnClick={() => history.push('/waitingroom')}
+          type={'main'}
+          disabled={!state.proceedGame}
+          name={'Continue Game'}
+          clickHandler={() => history.push('/waitingroom')}
         />
         <MainButton
-          colorType={'secondary'}
-          notActive={false}
-          mainBtnName={'Start New Game'}
-          onBtnClick={startNewGameHandler}
+          type={'aux'}
+          name={'Start New Game'}
+          clickHandler={startNewGameHandler}
         />
-      </div>
+      </Box>
       {state.isLoading ? <LoadingSpinner /> : null}
-    </div>
+    </PageLayout>
   )
 }
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flex: 1,
-    padding: 10
-  },
-  btnBox: {
-    marginBlock: 5,
-    paddingBlock: 5
-  }
-}))
 
 export default RecoveryPage

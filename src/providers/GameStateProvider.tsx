@@ -1,21 +1,25 @@
 import React, { useContext, useState } from 'react'
 
-interface DataContextType {
+export interface DataContextType {
   header: string
   nickname: string,
   gameId: string,
   artificialGameId: string,
   timer: number,
   questionNum?: number
+  mode: string,
+  roomId: string
 }
 
-const initialState = {
+export const initialState: DataContextType = {
     header: 'Quiz Game',
     nickname: 'Anonymous',
     gameId: '',
     artificialGameId: '#',
     timer: 15,
-    questionNum: 0
+    questionNum: 0,
+    mode: 'multiplayer',
+    roomId: ''
   }
 
 const GameStateContext = React.createContext<
