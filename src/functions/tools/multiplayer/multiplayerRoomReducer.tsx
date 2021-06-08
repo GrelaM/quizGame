@@ -5,7 +5,16 @@ export interface State {
   gameState: boolean
   startGameReq: boolean
   headerDisplay: string
-  players: string[]
+  players: {
+    array: string[]
+    alert: {
+      type: 'success' | 'info' | 'warning' | 'error' | undefined
+      title: string
+      message: string
+      status: boolean
+      showTimer: number
+    }
+  }
   timer: number
   leftQuestions: number
   nextQuestion?: Question
@@ -19,6 +28,7 @@ export interface State {
     title: string
     message: string
     status: boolean
+    showTimer: number
   }
   finaleResults: {
     resultsOnDisplay: boolean
@@ -37,7 +47,16 @@ export const initialState: State = {
   gameState: false,
   startGameReq: false,
   headerDisplay: 'Please wait...',
-  players: [],
+  players: {
+    array: [],
+    alert: {
+      type: undefined,
+      title: '',
+      message: '',
+      status: false,
+      showTimer: 1500
+    }
+  },
   timer: 0,
   leftQuestions: 0,
   counter: {
@@ -49,7 +68,8 @@ export const initialState: State = {
     type: undefined,
     title: '',
     message: '',
-    status: false
+    status: false,
+    showTimer: 1500
   },
   finaleResults: {
     resultsOnDisplay: false,
@@ -59,6 +79,7 @@ export const initialState: State = {
 }
 
 export enum Handlers {
+  CLEAR_PLAYER_ALERT_HANDLER = 'CLEAR_PLAYER_ALERT_HANDLER',
   CLEAN_SNACKBAR_HANDLER = 'CLEAN_SNACKBAR_HANDLER',
   ALERT_HANDLER = 'ALERT_HANDLER',
   ON_OPEN_ROOM_HANDLER = 'ON_OPEN_ROOM_HANDLER',
@@ -75,6 +96,9 @@ export enum Handlers {
 }
 
 export type Action =
+  | {
+      type: Handlers.CLEAR_PLAYER_ALERT_HANDLER
+    }
   | { type: Handlers.CLEAN_SNACKBAR_HANDLER }
   | {
       type: Handlers.ALERT_HANDLER
@@ -90,6 +114,7 @@ export type Action =
       value: {
         roomState: boolean
         alert: {
+          showTimer: number
           type: 'success' | 'info' | 'warning' | 'error' | undefined
           status: boolean
           title: string
@@ -105,6 +130,7 @@ export type Action =
           title: string
           message: string
           status: boolean
+          showTimer: number
         }
         allPlayers: string[]
       }
@@ -166,10 +192,25 @@ export type Action =
 
 export const multiplayerRoomReducer = (state: State, action: Action): State => {
   switch (action.type) {
+    case Handlers.CLEAR_PLAYER_ALERT_HANDLER:
+      return {
+        ...state,
+        players: {
+          ...state.players,
+          alert: {
+            type: undefined,
+            title: '',
+            message: '',
+            status: false,
+            showTimer: 1500
+          }
+        }
+      }
     case Handlers.CLEAN_SNACKBAR_HANDLER:
       return {
         ...state,
         alert: {
+          ...state.alert,
           type: undefined,
           title: '',
           message: '',
@@ -180,6 +221,7 @@ export const multiplayerRoomReducer = (state: State, action: Action): State => {
       return {
         ...state,
         alert: {
+          ...state.alert,
           type: action.value.type,
           title: action.value.title,
           message: action.value.message,
@@ -196,8 +238,10 @@ export const multiplayerRoomReducer = (state: State, action: Action): State => {
     case Handlers.UPDATE_PLAYERS_HANDLERS:
       return {
         ...state,
-        players: action.value.allPlayers,
-        alert: action.value.alert
+        players: {
+          array: action.value.allPlayers,
+          alert: action.value.alert
+        }
       }
     case Handlers.START_GAME_REQ_HANDLER:
       return { ...state, startGameReq: action.value }

@@ -4,7 +4,7 @@ export interface GlobalStateContextType {
   user: {
     id: undefined | string
     status: undefined | 'host' | 'player'
-    nickname: string
+    nickname: 'Anonymous' | string
   }
   singleGame: {
     gameId: string
@@ -61,14 +61,12 @@ export enum Handlers {
   SET_ALERT_HANDLER = 'SET_ALERT_HANDLER',
   CLEAR_ALERT_HANDLER = 'CLEAR_ALERT_HANDLER',
   SET_SINGLE_PLAYER_GAME = 'SET_SINGLE_PLAYER_GAME',
+  SET_MULTIPLAYER_GAME = 'SET_MULTIPLAYER_GAME',
+  JOIN_MULTIPLAYER_GAME = 'JOIN_MULTIPLAYER_GAME',
+  SET_RECOVERY_MODE_SINGLE_GAME_HANDLER = 'SET_RECOVERY_MODE_SINGLE_GAME_HANDLER',
+  SET_RECOVERY_MODE_MULTIPLAYER_HANDLER = 'SET_RECOVERY_MODE_MULTIPLAYER_HANDLER',
   ON_GAME_SETTINGS_HANDLER = 'ON_GAME_SETTINGS_HANDLER',
-  RESET_STATE = 'RESET_STATE',
-
-  MODE_HANDLER = 'MODE_HANDLER',
-  USER_INFO_HANDLER = 'USER_INFO_HANDLER',
-  SINGLE_GAME_HANDLER = 'SINGLE_GAME_HANDLER',
-  MULTIPLAYER_GAME_HANDLER = 'MULTIPLAYER_GAME_HANDLER',
-  CURRENT_GAME_HANDLER = 'CURRENT_GAME_HANDLER'
+  RESET_STATE = 'RESET_STATE'
 }
 
 export type Action =
@@ -91,37 +89,46 @@ export type Action =
       }
     }
   | {
-      type: Handlers.MODE_HANDLER
-      value: undefined | 'single player' | 'multiplayer'
-    }
-  | {
-      type: Handlers.USER_INFO_HANDLER
+      type: Handlers.SET_MULTIPLAYER_GAME
       value: {
+        mode: undefined | 'multiplayer'
         id: undefined | string
-        status: undefined | 'host' | 'player'
-        nickname: string
-      }
-    }
-  | {
-      type: Handlers.SINGLE_GAME_HANDLER
-      value: {
+        status: undefined | 'host'
+        nickname: 'Anonymous' | string
         gameId: string
-        artificialGameId: string
+        roomId: string
+        timer: number
+        quantity: number
+        level: number
       }
     }
   | {
-      type: Handlers.MULTIPLAYER_GAME_HANDLER
+      type: Handlers.JOIN_MULTIPLAYER_GAME
       value: {
+        mode: undefined | 'multiplayer'
+        status: undefined | 'player'
+        nickname: 'Anonymous' | string
         gameId: string
         roomId: string
       }
     }
   | {
-      type: Handlers.CURRENT_GAME_HANDLER
+      type: Handlers.SET_RECOVERY_MODE_SINGLE_GAME_HANDLER
       value: {
-        timer: 0
-        totalQuestion: 0
-        level: 0
+        nickname: string
+        status: 'player'
+        artificialGameId: string
+        gameId: string
+        timer: number
+      }
+    }
+  | {
+      type: Handlers.SET_RECOVERY_MODE_MULTIPLAYER_HANDLER
+      value: {
+        mode: 'multiplayer'
+        status: 'host'
+        gameId: string
+        roomId: string
       }
     }
   | {
@@ -173,40 +180,67 @@ export const globalContextReducer = (
           quantity: action.value.quantity
         }
       }
-    case Handlers.MODE_HANDLER:
-      return { ...state, mode: action.value }
-    case Handlers.USER_INFO_HANDLER:
+    case Handlers.SET_MULTIPLAYER_GAME:
       return {
         ...state,
+        mode: action.value.mode,
         user: {
           id: action.value.id,
           nickname: action.value.nickname,
           status: action.value.status
-        }
-      }
-    case Handlers.SINGLE_GAME_HANDLER:
-      return {
-        ...state,
-        singleGame: {
+        },
+        multiplayer: {
           gameId: action.value.gameId,
-          artificialGameId: action.value.artificialGameId
+          roomId: action.value.roomId
+        },
+        currentGameInfo: {
+          timer: action.value.timer,
+          level: action.value.level,
+          quantity: action.value.quantity
         }
       }
-    case Handlers.MULTIPLAYER_GAME_HANDLER:
+    case Handlers.JOIN_MULTIPLAYER_GAME:
       return {
         ...state,
+        mode: action.value.mode,
+        user: {
+          ...state.user,
+          nickname: action.value.nickname,
+          status: action.value.status
+        },
         multiplayer: {
           gameId: action.value.gameId,
           roomId: action.value.roomId
         }
       }
-    case Handlers.CURRENT_GAME_HANDLER:
+    case Handlers.SET_RECOVERY_MODE_SINGLE_GAME_HANDLER:
       return {
         ...state,
+        user: {
+          ...state.user,
+          nickname: action.value.nickname,
+          status: action.value.status
+        },
+        singleGame: {
+          artificialGameId: action.value.artificialGameId,
+          gameId: action.value.gameId
+        },
         currentGameInfo: {
-          timer: action.value.timer,
-          level: action.value.level,
-          quantity: action.value.timer
+          ...state.currentGameInfo,
+          timer: action.value.timer
+        }
+      }
+    case Handlers.SET_RECOVERY_MODE_MULTIPLAYER_HANDLER:
+      return {
+        ...state,
+        mode: action.value.mode,
+        user: {
+          ...state.user,
+          status: action.value.status
+        },
+        multiplayer: {
+          gameId: action.value.gameId,
+          roomId: action.value.roomId
         }
       }
     case Handlers.SET_ALERT_HANDLER:

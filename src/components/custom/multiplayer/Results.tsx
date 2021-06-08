@@ -1,8 +1,8 @@
 import { Flex } from '@chakra-ui/react'
 
-import Picture from '../../custom/Picture'
+import Picture from '../../custom/global/Picture'
 import ResultBox from './ResultBox'
-import MainButton from '../../custom/MainButton'
+import Btn from '../../custom/button/Btn'
 
 interface ResultsProps {
   results: {
@@ -20,9 +20,12 @@ const Results = (props: ResultsProps) => {
     <Flex direction="column" justifyContent="center" alignItems="center">
       <Picture size={'normal'} type={'result'} />
       <ResultBox results={props.results} resultsState={props.resultsState} />
-      <Flex w={'80%'} maxW={300} justifyContent="center" alignItems="center">
-        <MainButton type={'aux'} name={'Home'} clickHandler={props.clickHandler} />
-      </Flex>
+      <Btn
+        type={'aux'}
+        name={'Home'}
+        clickHandler={props.clickHandler}
+        margin={'normal'}
+      />
     </Flex>
   )
 }

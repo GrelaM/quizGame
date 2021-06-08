@@ -19,6 +19,7 @@ export const hostSocketHandler = (
     (fetchedData: {
       roomState: boolean
       alert: {
+        showTimer: 2000,
         type: 'success' | 'info' | 'warning' | 'error' | undefined
         status: boolean
         title: string
@@ -48,6 +49,7 @@ export const playersUpdateSocketHandler = (
         value: {
           allPlayers: data.allPlayers,
           alert: {
+            showTimer: 1500,
             type: data.type,
             title: 'Update',
             message: data.message,

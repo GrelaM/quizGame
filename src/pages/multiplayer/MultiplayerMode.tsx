@@ -1,51 +1,41 @@
-import { Flex } from '@chakra-ui/react'
 import { useHistory } from 'react-router-dom'
 import { useEffect } from 'react'
-import { useGameState } from '../../providers/GameStateProvider'
+import { useGameState } from '../../providers/GlobalStateProvider'
+import { Handlers as GlobalHandlers } from '../../functions/tools/global/contextReducer'
 
-import PageLayout from '../../components/chakra/components/layout/PageLayout'
-import Header from '../../components/chakra/components/custom/Header'
-import Picture from '../../components/chakra/components/custom/Picture'
-import MainButton from '../../components/chakra/components/custom/MainButton'
+import PageLayout from '../../components/layout/PageLayout'
+import Picture from '../../components/custom/global/Picture'
+import Btn from '../../components/custom/button/Btn'
 
 const MultiplayerMode = () => {
   const history = useHistory()
   const setGlobalState = useGameState()[1]
 
   useEffect(() => {
-    setGlobalState((current) => ({ ...current, header: 'Multiplayer' }))
+    setGlobalState({
+      type: GlobalHandlers.ON_GAME_SETTINGS_HANDLER,
+      value: {
+        header: 'Multiplayer',
+        mode: 'multiplayer'
+      }
+    })
   }, [setGlobalState])
 
   return (
     <PageLayout>
-      <Header />
       <Picture size="normal" type="main" />
-      <Flex
-        direction="column"
-        justifyContent="center"
-        alignItems="center"
-        w="90%"
-        maxW={300}
-      >
-        <MainButton
-          margin="small"
-          type="main"
-          name={'Host Game'}
-          clickHandler={() => history.push('/hosting')}
-        />
-        <MainButton
-          margin="small"
-          type="main"
-          name={'Join'}
-          clickHandler={() => history.push('/join')}
-        />
-        <MainButton
-          margin="small"
-          type="aux"
-          name={'Back'}
-          clickHandler={() => history.goBack()}
-        />
-      </Flex>
+      <Btn
+        margin="normal"
+        type="main"
+        name={'Host Game'}
+        clickHandler={() => history.push('/hosting')}
+      />
+      <Btn
+        margin="small"
+        type="aux"
+        name={'Join'}
+        clickHandler={() => history.push('/join')}
+      />
     </PageLayout>
   )
 }

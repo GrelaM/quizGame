@@ -2,7 +2,6 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { chakraTheme } from './constants/theme/chakraThemeIndex'
 
 import { Switch, Route, BrowserRouter, Redirect } from 'react-router-dom'
-import GameStateProvider from './providers/GameStateProvider'
 import GlobalStateProvider from './providers/GlobalStateProvider'
 import './App.css'
 
@@ -24,38 +23,33 @@ import Test from './pages/tests/Test'
 function App() {
   return (
     <GlobalStateProvider>
-      <GameStateProvider>
-        <ChakraProvider theme={chakraTheme}>
-          <BrowserRouter>
-            <div className="App">
-              <Switch>
-                <Route path="/" exact component={StartPage} />
-                <Route path="/waitingroom" component={WaitingRoomPage} />
-                <Route
-                  path="/singlegame/settings"
-                  component={SinglePlayerSettings}
-                />
-                <Route path="/game" component={GamePage} />
-                <Route path="/result" component={EndGamePage} />
-                <Route path="/singlegame/recovery" component={RecoveryPage} />
-                <Route path="/multiplayer/mode" component={MultiplayerMode} />
-                <Route
-                  path="/hosting/room/:roomId"
-                  component={MultiplayerRoom}
-                />
-                <Route path="/hosting" component={HostPage} />
-                <Route path="/join" component={JoinPage} />
-                <Route
-                  path="/multuplayer/game/:gameid"
-                  component={MultiplayerGamePage}
-                />
-                <Route path="/test" component={Test} />
-                <Redirect from="/" to="/" />
-              </Switch>
-            </div>
-          </BrowserRouter>
-        </ChakraProvider>
-      </GameStateProvider>
+      <ChakraProvider theme={chakraTheme}>
+        <BrowserRouter>
+          <div className="App">
+            <Switch>
+              <Route path="/" exact component={StartPage} />
+              <Route path="/waitingroom" component={WaitingRoomPage} />
+              <Route
+                path="/singlegame/settings"
+                component={SinglePlayerSettings}
+              />
+              <Route path="/game" component={GamePage} />
+              <Route path="/result" component={EndGamePage} />
+              <Route path="/singlegame/recovery" component={RecoveryPage} />
+              <Route path="/multiplayer/mode" component={MultiplayerMode} />
+              <Route path="/hosting/room/:roomId" component={MultiplayerRoom} />
+              <Route path="/hosting" component={HostPage} />
+              <Route path="/join" component={JoinPage} />
+              <Route
+                path="/multuplayer/game/:gameid"
+                component={MultiplayerGamePage}
+              />
+              <Route path="/test" component={Test} />
+              <Redirect from="/" to="/" />
+            </Switch>
+          </div>
+        </BrowserRouter>
+      </ChakraProvider>
     </GlobalStateProvider>
   )
 }

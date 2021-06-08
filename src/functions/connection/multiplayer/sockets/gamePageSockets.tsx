@@ -32,7 +32,19 @@ export const onPlayerUpdateSocketHandler = (
       message: string
       allPlayers: string[]
     }) => {
-      dispatch({ type: Handlers.UPDATE_PLAYERS_HANDLERS, value: data })
+      dispatch({
+        type: Handlers.UPDATE_PLAYERS_HANDLERS,
+        value: {
+          array: data.allPlayers,
+          alert: {
+            showTimer: 1500,
+            type: data.type,
+            title: 'Update',
+            message: data.message,
+            status: true
+          }
+        }
+      })
     }
   )
 }

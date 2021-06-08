@@ -1,6 +1,6 @@
 import {Box} from '@chakra-ui/react'
 
-import MainButton from '../../custom/MainButton'
+import Btn from '../../custom/button/Btn'
 
 interface RoomBtnDisplayProps {
     startGameBtnDisabled: boolean
@@ -9,24 +9,24 @@ interface RoomBtnDisplayProps {
     shareLinkGameBtnHandler: () => void
 }
 
-const RoomBtnDisplay = (props: RoomBtnDisplayProps) => {
+const RoomBtnLayout = (props: RoomBtnDisplayProps) => {
   return (
-    <Box w="90%" maxW={300} marginTop={2}>
-      <MainButton
+    <Box w="90%" maxW={300} m={1}>
+      <Btn
         margin={'small'}
         disabled={props.startGameBtnDisabled}
         name={'start game'}
         type={'main'}
         clickHandler={props.startGameBtnHandler}
       />
-      <MainButton
+      <Btn
         margin={'small'}
         disabled={props.shareLinkBtnDisabled}
         name={'Share Link'}
         type={'main'}
         clickHandler={props.shareLinkGameBtnHandler}
       />
-      <MainButton
+      <Btn
         margin={'small'}
         disabled={false}
         type={'aux'}
@@ -37,4 +37,4 @@ const RoomBtnDisplay = (props: RoomBtnDisplayProps) => {
   )
 }
 
-export default RoomBtnDisplay
+export default RoomBtnLayout

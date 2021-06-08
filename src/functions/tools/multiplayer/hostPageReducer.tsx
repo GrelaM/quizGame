@@ -4,12 +4,7 @@ interface HostPageInitialStateType {
     header: string
     roomId: string
   }
-  alert: {
-    type: undefined | 'info' | 'success' | 'error' | 'warning'
-    status: boolean
-    title: string
-    message: string
-  }
+  toggleAlert: boolean
   shouldGo: boolean
   localStorageAlert: boolean
   mode: number
@@ -21,19 +16,14 @@ export const initialState: HostPageInitialStateType = {
     header: 'Room: ',
     roomId: 'will be created soon...'
   },
-  alert: {
-    type: undefined,
-    status: false,
-    title: '',
-    message: ''
-  },
+  toggleAlert: false,
   shouldGo: false,
   localStorageAlert: false,
   mode: 0
 }
 
 export enum Handlers {
-  ALERT_HANDLER = 'ALERT_HANDLER',
+  TOGGLE_ALERT_HANDLER = 'TOGGLE_ALERT_HANDLER',
   DISPLAY_HANDLER = 'DISPLAY_HANDLER',
   SET_MODE_HANDLER = 'SET_MODE_HANDLER',
   RECOVERY_HANDLER = 'RECOVERY_HANDLER',
@@ -41,15 +31,10 @@ export enum Handlers {
   FETCHED_DATA_HANDLER = 'FETCHED_DATA_HANDLER'
 }
 
-type Action =
+export type Action =
   | {
-      type: Handlers.ALERT_HANDLER
-      value: {
-        type: undefined | 'info' | 'success' | 'error' | 'warning'
-        status: boolean
-        title: string
-        message: string
-      }
+      type: Handlers.TOGGLE_ALERT_HANDLER
+      value: boolean
     }
   | {
       type: Handlers.DISPLAY_HANDLER
@@ -97,8 +82,8 @@ export const hostPageReducer = (
   action: Action
 ): HostPageInitialStateType => {
   switch (action.type) {
-    case Handlers.ALERT_HANDLER:
-      return { ...state, alert: action.value }
+    case Handlers.TOGGLE_ALERT_HANDLER:
+      return { ...state, toggleAlert: action.value }
     case Handlers.DISPLAY_HANDLER:
       return { ...state, display: action.value }
     case Handlers.SET_MODE_HANDLER:

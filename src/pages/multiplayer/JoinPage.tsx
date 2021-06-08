@@ -1,14 +1,13 @@
-import { Box } from '@chakra-ui/react'
 import { useHistory } from 'react-router-dom'
-import { useGameState } from '../../providers/GameStateProvider'
+import { useGameState } from '../../providers/GlobalStateProvider'
+import { Handlers as GlobalHandlers } from '../../functions/tools/global/contextReducer'
 import { useState, useEffect } from 'react'
 import queryString from 'query-string'
 
-import PageLayout from '../../components/chakra/components/layout/PageLayout'
-import Header from '../../components/chakra/components/custom/Header'
-import Picture from '../../components/chakra/components/custom/Picture'
-import MainButton from '../../components/chakra/components/custom/MainButton'
-import TextInput from '../../components/chakra/components/custom/TextInput'
+import PageLayout from '../../components/layout/PageLayout'
+import Picture from '../../components/custom/global/Picture'
+import Btn from '../../components/custom/button/Btn'
+import CustomInput from '../../components/custom/global/CustomInput'
 
 const idHandler = (urlparams: any) => {
   let id: string
@@ -41,18 +40,21 @@ const JoinGame = ({ location }: any) => {
     const query = queryString.parse(location.search)
     const roomId = query.roomid
     const gameId = query.gameid
-
-    setGlobalState((cur) => ({
-      ...cur,
-      nickname: state.nickname,
-      roomId: state.roomId,
-      gameId: gameId!.toString()
-    }))
+    setGlobalState({
+      type: GlobalHandlers.JOIN_MULTIPLAYER_GAME,
+      value: {
+        gameId: gameId!.toString(),
+        roomId: state.roomId,
+        nickname: state.nickname,
+        mode: 'multiplayer',
+        status: 'player'
+      }
+    })
     history.push(`/multuplayer/game/${roomId}`)
   }
 
   useEffect(() => {
-    setGlobalState((cur) => ({ ...cur, header: 'player' }))
+    setGlobalState({ type: GlobalHandlers.HEADER_HANDLER, value: 'player' })
   }, [setGlobalState])
 
   useEffect(() => {
@@ -64,35 +66,28 @@ const JoinGame = ({ location }: any) => {
 
   return (
     <PageLayout>
-      <Header />
-      <Picture type={'main'} size={'small'} />
-      <Box w="90%" maxW={300} margin={2}>
-        <TextInput
-          value={state.nickname}
-          placeholder={'Enter your nickname...'}
-          onChange={(e) => nickNameHandler(e)}
-        />
-        <TextInput
-          value={state.roomId}
-          placeholder={'Enter room ID...'}
-          onChange={(e) => roomIdNameHandler(e)}
-        />
-      </Box>
-      <Box w="90%" maxW={300} margin={2}>
-        <MainButton
-          margin={'small'}
-          type={'main'}
-          disabled={state.nickname && state.roomId ? false : true}
-          name={'Join Game'}
-          clickHandler={joinGameHandler}
-        />
-        <MainButton
-          margin={'small'}
-          type={'aux'}
-          name={'Back'}
-          clickHandler={() => history.goBack()}
-        />
-      </Box>
+      <Picture type={'main'} size={'normal'} />
+      <CustomInput
+        isDisabled={false}
+        maxLength={15}
+        value={state.nickname}
+        placeholder={'Enter your nickname...'}
+        onChange={(e) => nickNameHandler(e)}
+      />
+      <CustomInput
+        isDisabled={false}
+        maxLength={15}
+        value={state.roomId}
+        placeholder={'Enter room ID...'}
+        onChange={(e) => roomIdNameHandler(e)}
+      />
+      <Btn
+        margin={'small'}
+        type={'main'}
+        disabled={state.nickname && state.roomId ? false : true}
+        name={'Join Game'}
+        clickHandler={joinGameHandler}
+      />
     </PageLayout>
   )
 }

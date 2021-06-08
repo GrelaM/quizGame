@@ -1,11 +1,15 @@
-import {
-  RecoveryStateType,
-  Handlers,
-  LocalStorageType,
-  initialState
-} from '../../../pages/singleplayer/RecoveryPage'
+export interface RecoveryStateType {
+  user: string
+  artificialGameId: string
+  gameId: string
+  proceedGame: boolean
+  isLoading: boolean
+  recoveredData: boolean
+  message: string
+  toggleAlert: boolean
+}
 
-export type StorageData = {
+export interface LocalStorageType {
   user: string
   gameSettings: {
     artificialGameId: string
@@ -15,20 +19,38 @@ export type StorageData = {
   }
 }
 
-export type RecoveryDataType = {
-  message: string
-  nextQuestion: number
+export enum Handlers {
+  PROCEED_GAME_HANDLER = 'PROCEED_GAME_HANDLER',
+  RECOVERED_DATA_HANDLER = 'RECOVERED_DATA_HANDLER',
+  TOGGLE_ALERT = 'TOGGLE_ALERT'
 }
 
-export type Action = | {
-  type: Handlers.RECOVERED_DATA_HANDLER
-  value: LocalStorageType
-} | {
-  type: Handlers.PROCEED_GAME_HANDLER
-  value: boolean
+export const initialState: RecoveryStateType = {
+  user: '',
+  artificialGameId: '',
+  gameId: '',
+  proceedGame: false,
+  isLoading: true,
+  recoveredData: false,
+  message: 'Please wait...',
+  toggleAlert: false
 }
 
-export const recoveryPageReducerFunction = (
+export type Action =
+  | {
+      type: Handlers.RECOVERED_DATA_HANDLER
+      value: LocalStorageType
+    }
+  | {
+      type: Handlers.PROCEED_GAME_HANDLER
+      value: string
+    }
+  | {
+      type: Handlers.TOGGLE_ALERT
+      value: boolean
+    }
+
+export const recoveryReducer = (
   state: RecoveryStateType,
   action: {
     type: Handlers
@@ -46,7 +68,14 @@ export const recoveryPageReducerFunction = (
         recoveredData: true
       }
     case Handlers.PROCEED_GAME_HANDLER:
-      return { ...state, proceedGame: true, recoveredData: false, message: action.value }
+      return {
+        ...state,
+        proceedGame: true,
+        recoveredData: false,
+        message: action.value
+      }
+    case Handlers.TOGGLE_ALERT:
+      return { ...state, toggleAlert: action.value }
     default:
       return initialState
   }

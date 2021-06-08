@@ -27,7 +27,7 @@ const Header = () => {
     >
       <Text
         color="white"
-        fontSize={isLargerThen720 ? '3.5vw' : '5.5vw'}
+        fontSize={isLargerThen720 ? '4vw' : '5vw'}
         textTransform={'uppercase'}
         w="100%"
         textAlign={isLargerThen720 ? 'center' : 'left'}
@@ -43,7 +43,7 @@ const Header = () => {
         <IconBtn
           icon={icon.goBack}
           btnHandler={() => history.goBack()}
-          isDisabled={pathname}
+          isDisabled={pathname || history.action === 'POP'}
         />
         <IconBtn
           icon={icon.home}

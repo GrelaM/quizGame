@@ -7,12 +7,15 @@ export enum GameMode {
 }
 
 export interface MultiplayerGameStateInterface {
-  players: string[]
-  alert: {
-    type: 'success' | 'info' | 'warning' | 'error' | undefined
-    title: string
-    message: string
-    status: boolean
+  players: {
+    array: string[]
+    alert: {
+      type: 'success' | 'info' | 'warning' | 'error' | undefined
+      title: string
+      message: string
+      status: boolean
+      showTimer: number
+    }
   }
   game: {
     header: string
@@ -39,12 +42,15 @@ export interface MultiplayerGameStateInterface {
 }
 
 export const initialState: MultiplayerGameStateInterface = {
-  players: [],
-  alert: {
-    type: undefined,
-    title: '',
-    message: '',
-    status: false
+  players: {
+    array: [],
+    alert: {
+      type: undefined,
+      title: '',
+      message: '',
+      status: false,
+      showTimer: 1000
+    }
   },
   game: {
     header: 'Please wait...',
@@ -79,7 +85,6 @@ export const initialState: MultiplayerGameStateInterface = {
 export enum Handlers {
   UPDATE_PLAYERS_HANDLERS = 'UPDATE_PLAYERS_HANDLERS',
   CLEAN_ALERT_HANDLER = 'CLEAN_ALERT_HANDLER',
-  ALERT_HANDLER = 'ALERT_HANDLER',
   BUTTON_HANDLER = 'BUTTON_HANDLER',
   HEADER_HANDLER = 'HEADER_HANDLER',
   COUNTER_HANDLER = 'COUNTER_HANDLER',
@@ -96,19 +101,14 @@ export type Action =
   | {
       type: Handlers.UPDATE_PLAYERS_HANDLERS
       value: {
-        type: 'success' | 'info' | 'warning' | 'error' | undefined
-        title: string
-        message: string
-        allPlayers: string[]
-      }
-    }
-  | {
-      type: Handlers.ALERT_HANDLER
-      value: {
-        type: 'success' | 'info' | 'warning' | 'error' | undefined
-        title: string
-        message: string
-        status: boolean
+        array: string[]
+        alert: {
+          type: 'success' | 'info' | 'warning' | 'error' | undefined
+          title: string
+          message: string
+          status: boolean
+          showTimer: number
+        }
       }
     }
   | {
@@ -176,21 +176,25 @@ export const multiplayerGameReducer = (
     case Handlers.UPDATE_PLAYERS_HANDLERS:
       return {
         ...state,
-        players: action.value.allPlayers,
-        alert: {
-          type: action.value.type,
-          title: action.value.title,
-          message: action.value.message,
-          status: true
+        players: {
+          array: action.value.array,
+          alert: action.value.alert
         }
       }
     case Handlers.CLEAN_ALERT_HANDLER:
       return {
         ...state,
-        alert: { type: undefined, title: '', message: '', status: false }
+        players: {
+          ...state.players,
+          alert: {
+            type: undefined,
+            title: '',
+            message: '',
+            status: false,
+            showTimer: 1000
+          }
+        }
       }
-    case Handlers.ALERT_HANDLER:
-      return { ...state, alert: action.value }
     case Handlers.BUTTON_HANDLER:
       return {
         ...state,
@@ -263,6 +267,6 @@ export const multiplayerGameReducer = (
         }
       }
     default:
-      return state
+      return { ...state }
   }
 }

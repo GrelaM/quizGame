@@ -15,7 +15,7 @@ const Picture = (props: {type: "result" | "main", size: 'normal' | 'small'}) => 
       display="flex"
       justifyContent="center"
       alignItems="center"
-      m={props.size === 'normal' ? 6 : 1}
+      m={props.size === 'normal' ? 2 : 1}
     >
       <Image
         borderRadius="full"

@@ -8,7 +8,8 @@ enum SocketNames {
   JOIN = 'join',
   START_GAME = 'start-game',
   END_GAME = 'end-game',
-  SOCKET_DISCONNECT = 'socket-disconnect',
+  SOCKET_DISCONNECT = 'disconnect',
+  // SOCKET_DISCONNECT = 'socket-disconnect',
   ANSWER = 'answer'
 }
 

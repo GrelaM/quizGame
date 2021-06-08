@@ -9,17 +9,22 @@ import {
 import { useEffect } from 'react'
 
 interface AlertDisplayProps {
+  shouldDisplay: boolean
   type: 'info' | 'warning' | 'success' | 'error' | undefined
   title: string
   message: string
   alertHandler: () => void
+  alertTimer?: number
+  bottom?: number
 }
 
-const AlertDisplay = (props: AlertDisplayProps) => {
+const AlertBox = (props: AlertDisplayProps) => {
   useEffect(() => {
+    const timer = props.alertTimer ? props.alertTimer : 3000
+    if (!props.shouldDisplay) return () => {}
     const close = setTimeout(() => {
       props.alertHandler()
-    }, 3500)
+    }, timer)
 
     return () => {
       clearTimeout(close)
@@ -28,18 +33,20 @@ const AlertDisplay = (props: AlertDisplayProps) => {
 
   return (
     <Alert
-      status={props.type}
       position="absolute"
-      bottom={3}
-      w={300}
-      variant="left-accent"
+      bottom={props.bottom ? props.bottom : 4}
+      display={props.shouldDisplay ? 'flex' : 'none'}
+      status={props.type}
+      w={'100%'}
+      maxW={300}
+      variant="solid"
+      borderRadius={10}
+      boxShadow="dark-lg"
     >
       <AlertIcon />
-      <Flex flexDirection={'column'}>
+      <Flex flexDirection={'column'} textAlign={'left'}>
         <AlertTitle mr={2}>{props.title}</AlertTitle>
-        <AlertDescription paddingInline={4}>
-          {props.message}
-        </AlertDescription>
+        <AlertDescription mr={2}>{props.message}</AlertDescription>
       </Flex>
       <CloseButton
         position="absolute"
@@ -51,4 +58,4 @@ const AlertDisplay = (props: AlertDisplayProps) => {
   )
 }
 
-export default AlertDisplay
+export default AlertBox

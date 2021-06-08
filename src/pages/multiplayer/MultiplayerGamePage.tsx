@@ -1,5 +1,6 @@
 import { useHistory } from 'react-router-dom'
-import { useGameState } from '../../providers/GameStateProvider'
+import { useGameState } from '../../providers/GlobalStateProvider'
+import { Handlers as GlobalHandlers } from '../../functions/tools/global/contextReducer'
 import { useReducer, useEffect } from 'react'
 import {
   initialState,
@@ -10,12 +11,11 @@ import {
 import io from 'socket.io-client'
 import SocketNames from '../../constants/socketNames'
 
-import PageLayout from '../../components/chakra/components/layout/PageLayout'
-import Header from '../../components/chakra/components/custom/Header'
-import Alert from '../../components/chakra/components/events/Alert'
-import RoomStatusDisplay from '../../components/chakra/components/layout/multiplayer/RoomStatusDisplay'
-import GameDisplay from '../../components/chakra/components/layout/multiplayer/GameDisplay'
-import LoadingSpinner from '../../components/chakra/components/layout/LoadingSpinner'
+import PageLayout from '../../components/layout/PageLayout'
+import LoadingSpinner from '../../components/layout/LoadingSpinner'
+import RoomStatusDisplay from '../../components/custom/multiplayer/RoomStatusDisplay'
+import GameDisplay from '../../components/custom/multiplayer/GameDisplay'
+import Results from '../../components/custom/multiplayer/Results'
 
 import {
   onJoinSocketHandler,
@@ -28,7 +28,6 @@ import {
 
 import counterHandler from '../../functions/other/multiplayer/gamePage/counterHandler'
 import hintsHandler from '../../functions/other/multiplayer/gamePage/hintsHandler'
-import Results from '../../components/chakra/components/layout/multiplayer/Results'
 
 let socket: any
 
@@ -39,22 +38,22 @@ const MultiplayerGamePage = () => {
   const ENDPOINT = 'localhost:8080'
 
   useEffect(() => {
-    setGlobalState((cur) => ({ ...cur, header: `quiz game` }))
+    setGlobalState({ type: GlobalHandlers.HEADER_HANDLER, value: 'quiz game' })
     socket = io(ENDPOINT)
     onJoinSocketHandler(
       socket,
-      globalState.roomId,
-      globalState.nickname,
-      globalState.gameId
+      globalState.multiplayer.roomId,
+      globalState.user.nickname,
+      globalState.multiplayer.gameId
     )
     return () => {
       socket.emit(SocketNames.SOCKET_DISCONNECT)
       socket.off()
     }
   }, [
-    globalState.roomId,
-    globalState.nickname,
-    globalState.gameId,
+    globalState.multiplayer.roomId,
+    globalState.user.nickname,
+    globalState.multiplayer.gameId,
     setGlobalState
   ])
 
@@ -62,7 +61,7 @@ const MultiplayerGamePage = () => {
     onPlayerUpdateSocketHandler(socket, dispatch)
     onGetReadySocketHandler(socket, dispatch)
     onQuestionHandler(socket, dispatch, (message: string) =>
-      setGlobalState((cur) => ({ ...cur, header: message }))
+      setGlobalState({ type: GlobalHandlers.HEADER_HANDLER, value: message })
     )
     onEndGameSocketHandler(socket, dispatch)
     onResultsHandler(socket, dispatch)
@@ -75,8 +74,8 @@ const MultiplayerGamePage = () => {
       state.question.Hints,
       dispatch
     )
-    let hints = setInterval(() => {}, 100)
 
+    let hints = setTimeout(() => {}, 100)
     if (state.question.Hints.length > 0) {
       hints = hintsHandler(state.game.timer, state.question.Hints, dispatch)
     }
@@ -104,8 +103,8 @@ const MultiplayerGamePage = () => {
     } = {
       code: answer.code,
       hints: state.game.displayedHints.length,
-      roomId: globalState.roomId,
-      gameId: globalState.gameId
+      roomId: globalState.multiplayer.roomId,
+      gameId: globalState.multiplayer.gameId
     }
     socket.emit(SocketNames.ANSWER, data)
   }
@@ -118,8 +117,9 @@ const MultiplayerGamePage = () => {
     <RoomStatusDisplay
       headerDisplay={state.game.header}
       counter={state.game.counter}
-      playersArray={state.players}
-      roomName={globalState.roomId}
+      players={{ array: state.players.array, alert: state.players.alert }}
+      playerAlertHandler={cleanSnackBarAlertHandler}
+      roomName={globalState.multiplayer.roomId}
       roomState={true}
       resultsOnDisplay={false}
       resultsState={false}
@@ -149,17 +149,8 @@ const MultiplayerGamePage = () => {
 
   return (
     <PageLayout>
-      <Header />
       {mode}
-      {state.alert.status ? (
-        <Alert
-          type={state.alert.type}
-          title={state.alert.title}
-          message={state.alert.message}
-          alertHandler={cleanSnackBarAlertHandler}
-        />
-      ) : null}
-      {state.onLoading ? <LoadingSpinner /> : null}
+      <LoadingSpinner toggleSpinner={state.onLoading} />
     </PageLayout>
   )
 }

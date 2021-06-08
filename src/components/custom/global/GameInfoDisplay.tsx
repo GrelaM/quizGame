@@ -20,7 +20,7 @@ const Display = (props: RecoveryDisplayProps) => {
       paddingTop={8}
       bg="rgba(255,255,255,0.3)"
       marginBlock={2}
-      maxW={320}
+      maxW={280}
       w="90%"
       borderRadius={8}
     >

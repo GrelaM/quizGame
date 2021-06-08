@@ -1,6 +1,6 @@
 import { Flex, Box } from '@chakra-ui/react'
 
-import SingleResult from '../../custom/SingleResult'
+import SingleResult from './SingleResult'
 
 interface ResultBoxProps {
   results: {

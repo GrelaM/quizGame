@@ -14,7 +14,7 @@ const CustomInput = (props: TextInputProps) => {
         disabled={props.isDisabled}
         _disabled={{
           borderColor: 'secondary.light',
-          bg: 'rgba(0,0,0,0.1)'
+          bg: 'rgba(255,255,255,0.15)'
         }}
         maxLength={props.maxLength}
         value={props.value}

@@ -1,13 +1,26 @@
 import { Flex, Text, Progress } from '@chakra-ui/react'
 import { StarIcon } from '@chakra-ui/icons'
-import PlayerDisplay from '../../custom/multiplayer/PlayersDisplay'
+
+import PlayerDisplay from './PlayersDisplay'
 import HostResults from './HostResults'
+
+import Alert from '../../events/UpdateAlertBox'
 
 interface RoomStatusDislpayProps {
   roomName: string
   roomState: boolean
   headerDisplay: string
-  playersArray: string[]
+  players: {
+    array: string[]
+    alert: {
+      type: 'success' | 'info' | 'warning' | 'error' | undefined
+      title: string
+      message: string
+      status: boolean
+      showTimer: number
+    }
+  }
+  playerAlertHandler: () => void
   counter: number
   resultsOnDisplay: boolean
   resultsState: boolean
@@ -22,18 +35,21 @@ interface RoomStatusDislpayProps {
 const RoomStatusDislpay = (props: RoomStatusDislpayProps) => {
   return (
     <Flex
+      position="relative"
+      // w={300}
       w="100%"
       maxW={300}
       direction="column"
       justifyContent="flex-start"
       alignItems="center"
-      flex={1}
+      // flex={1}
       bg="rgba(255,255,255,0.2)"
       borderRadius={5}
       margin={2}
     >
       {/*Room display*/}
       <Flex
+        position="relative"
         direction="column"
         justifyContent="center"
         alignItems="center"
@@ -76,13 +92,22 @@ const RoomStatusDislpay = (props: RoomStatusDislpayProps) => {
         />
       </Flex>
       {/*Player and Result display*/}
-      <PlayerDisplay playersArray={props.playersArray} />
+      <PlayerDisplay playersArray={props.players.array} />
       {props.resultsOnDisplay ? (
         <HostResults
           results={props.results}
           resultsState={props.resultsState}
         />
       ) : null}
+      <Alert
+        type={props.players.alert.type}
+        title={props.players.alert.title}
+        message={props.players.alert.message}
+        shouldDisplay={props.players.alert.status}
+        alertHandler={props.playerAlertHandler}
+        alertTimer={props.players.alert.showTimer}
+        bottom={1}
+      />
     </Flex>
   )
 }
