@@ -43,7 +43,7 @@ const JoinGame = ({ location }: any) => {
     setGlobalState({
       type: GlobalHandlers.JOIN_MULTIPLAYER_GAME,
       value: {
-        gameId: gameId!.toString(),
+        gameId: gameId ? gameId.toString() : '',
         roomId: state.roomId,
         nickname: state.nickname,
         mode: 'multiplayer',

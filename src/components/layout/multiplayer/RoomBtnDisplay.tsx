@@ -26,13 +26,13 @@ const RoomBtnLayout = (props: RoomBtnDisplayProps) => {
         type={'main'}
         clickHandler={props.shareLinkGameBtnHandler}
       />
-      <Btn
+      {/* <Btn
         margin={'small'}
         disabled={false}
         type={'aux'}
         name={'terminate game'}
         clickHandler={() => console.log('End Game')}
-      />
+      /> */}
     </Box>
   )
 }

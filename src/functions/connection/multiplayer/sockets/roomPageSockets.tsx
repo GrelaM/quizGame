@@ -4,6 +4,7 @@ import {
   Action,
   Handlers
 } from '../../../tools/multiplayer/multiplayerRoomReducer'
+import { LocalStorage } from '../../../../constants/localStorage'
 
 export const hostSocketHandler = (
   socket: any,
@@ -134,6 +135,7 @@ export const onResultsHandler = (
         type: Handlers.RESULTS_HANDLER,
         value: { state: true, results: data.results }
       })
+      window.localStorage.removeItem(LocalStorage.MULTIPLAYER)
     }
   )
 }

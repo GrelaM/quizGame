@@ -43,11 +43,10 @@ const MultiplayerGamePage = () => {
     onJoinSocketHandler(
       socket,
       globalState.multiplayer.roomId,
-      globalState.user.nickname,
-      globalState.multiplayer.gameId
+      globalState.user.nickname
     )
     return () => {
-      socket.emit(SocketNames.SOCKET_DISCONNECT)
+      socket.disconnect()
       socket.off()
     }
   }, [
@@ -65,6 +64,7 @@ const MultiplayerGamePage = () => {
     )
     onEndGameSocketHandler(socket, dispatch)
     onResultsHandler(socket, dispatch)
+    socket.on(SocketNames.FATAL_ERROR, () => history.push('/'))
   }, [setGlobalState])
 
   useEffect(() => {
@@ -119,6 +119,7 @@ const MultiplayerGamePage = () => {
       counter={state.game.counter}
       players={{ array: state.players.array, alert: state.players.alert }}
       playerAlertHandler={cleanSnackBarAlertHandler}
+      noPlayersMessage={'Please wait for other players...'}
       roomName={globalState.multiplayer.roomId}
       roomState={true}
       resultsOnDisplay={false}

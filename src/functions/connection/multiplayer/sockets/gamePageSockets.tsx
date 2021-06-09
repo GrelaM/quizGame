@@ -10,13 +10,11 @@ import {
 export const onJoinSocketHandler = (
   socket: any,
   roomId: string,
-  nickname: string,
-  gameId: string
+  nickname: string
 ) => {
   socket.emit(SocketNames.JOIN, {
     room: roomId,
-    nickname: nickname,
-    gameid: gameId
+    nickname: nickname
   })
 }
 

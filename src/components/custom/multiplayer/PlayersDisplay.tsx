@@ -1,6 +1,6 @@
 import { Flex, Text, Box } from '@chakra-ui/react'
 
-const PlayerDisplay = (props: { playersArray: string[] }) => {
+const PlayerDisplay = (props: { playersArray: string[], noPlayersMessage?: string }) => {
   return (
     <Flex
       direction="column"
@@ -29,7 +29,7 @@ const PlayerDisplay = (props: { playersArray: string[] }) => {
       >
         {props.playersArray.length <= 0 ? (
           <Text color="text.primary.650" p={1} m={1} letterSpacing={1}>
-            Please invite players...
+            {props.noPlayersMessage ? props.noPlayersMessage : 'Please invite players...'}
           </Text>
         ) : (
           props.playersArray.map((el, index) => {

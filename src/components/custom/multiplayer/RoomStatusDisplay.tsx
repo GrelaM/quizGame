@@ -30,6 +30,7 @@ interface RoomStatusDislpayProps {
     totalQuestions: number
     points: number
   }[]
+  noPlayersMessage?: string
 }
 
 const RoomStatusDislpay = (props: RoomStatusDislpayProps) => {
@@ -92,7 +93,7 @@ const RoomStatusDislpay = (props: RoomStatusDislpayProps) => {
         />
       </Flex>
       {/*Player and Result display*/}
-      <PlayerDisplay playersArray={props.players.array} />
+      <PlayerDisplay playersArray={props.players.array} noPlayersMessage={props.noPlayersMessage} />
       {props.resultsOnDisplay ? (
         <HostResults
           results={props.results}

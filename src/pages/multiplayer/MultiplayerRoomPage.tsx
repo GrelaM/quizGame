@@ -49,7 +49,7 @@ const MultiplayerRoom = ({ location }: any) => {
     setGlobalState({ type: GlobalHandlers.HEADER_HANDLER, value: 'host' })
 
     return () => {
-      socket.emit(SocketNames.SOCKET_DISCONNECT)
+      socket.disconnect()
       socket.off()
     }
   }, [history, location.search, roomId, gameId, setGlobalState])
@@ -62,6 +62,7 @@ const MultiplayerRoom = ({ location }: any) => {
     questionHostSocketHandler(socket, dispatch)
     onDisplayResultSocketHandler(socket, dispatch)
     onResultsHandler(socket, dispatch)
+    socket.on(SocketNames.FATAL_ERROR, () => history.push('/'))
   }, [gameId, roomId])
 
   useEffect(() => {
