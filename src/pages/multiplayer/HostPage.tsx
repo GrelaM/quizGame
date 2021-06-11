@@ -72,15 +72,7 @@ const HostPage = () => {
   }
 
   return (
-    <PageLayout
-      toggleAlert={state.toggleAlert}
-      alertTimer={4000}
-      alertHandler={() =>
-        errorHandler(dispatch, setGlobalState, () =>
-          dispatch({ type: Handlers.SET_MODE_HANDLER, value: 0 })
-        )
-      }
-    >
+    <PageLayout>
       {dislpay}
       <AlertDialog
         onClose={() => {}}

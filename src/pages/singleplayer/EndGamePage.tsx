@@ -46,11 +46,7 @@ const EndGamePage = () => {
   }
 
   return (
-    <PageLayeout
-      toggleAlert={state.toggleAlert}
-      alertTimer={4500}
-      alertHandler={errorHandler}
-    >
+    <PageLayeout>
       {state.isLoading ? (
         <LoadingSpinner toggleSpinner={state.isLoading} />
       ) : (

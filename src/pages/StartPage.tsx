@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { useGameState } from '../providers/GlobalStateProvider'
-import { Handlers as GlobalHandlers } from '../functions/tools/global/contextReducer'
+import { useGlobalState } from '../providers/StateProvider'
+import { GlobalHandler } from '../constants/interface/provider/globalHandler'
 
 import PageLayout from '../components/layout/PageLayout'
 import Picture from '../components/custom/global/Picture'
@@ -10,10 +10,13 @@ import Btn from '../components/custom/button/Btn'
 
 const StartPage = () => {
   const history = useHistory()
-  const setGlobalState = useGameState()[1]
+  const setGlobalState = useGlobalState()[1]
 
   useEffect(() => {
-    setGlobalState({ type: GlobalHandlers.HEADER_HANDLER, value: 'Quiz Game' })
+    setGlobalState({
+      type: GlobalHandler.MENU_HANDLER,
+      value: { header: 'quiz game', activeState: false }
+    })
   }, [setGlobalState])
 
   const gameModeHandler = (mode: 1 | 2) => {

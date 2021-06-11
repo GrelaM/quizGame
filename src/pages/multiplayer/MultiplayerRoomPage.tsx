@@ -63,7 +63,7 @@ const MultiplayerRoom = ({ location }: any) => {
     onDisplayResultSocketHandler(socket, dispatch)
     onResultsHandler(socket, dispatch)
     socket.on(SocketNames.FATAL_ERROR, () => history.push('/'))
-  }, [gameId, roomId])
+  }, [gameId, roomId, history])
 
   useEffect(() => {
     if (!state.counter.counterStatus) return () => {}

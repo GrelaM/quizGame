@@ -40,11 +40,7 @@ const SettingsPage = () => {
   }, [setGlobalState])
 
   return (
-    <PageLayout
-      toggleAlert={state.toggleAlert}
-      alertHandler={() => clearAlertHandler(dispatch, setGlobalState)}
-      alertTimer={5000}
-    >
+    <PageLayout>
       <GameSettings
         creatingNewGameHandler={(settings) => {
           startGameHandler(settings, dispatch, setGlobalState, () =>

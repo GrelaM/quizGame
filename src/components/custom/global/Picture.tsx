@@ -3,7 +3,10 @@ import { Box, Image } from '@chakra-ui/react'
 import GameImage from '../../../assets/img/questionSmall.png'
 import SmileFace from '../../../assets/img/smile.jpg'
 
-const Picture = (props: {type: "result" | "main", size: 'normal' | 'small'}) => {
+const Picture = (props: {
+  type: 'result' | 'main'
+  size: 'normal' | 'small'
+}) => {
   return (
     <Box
       paddingBlock={1}

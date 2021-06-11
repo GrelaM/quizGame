@@ -56,11 +56,7 @@ const RecoveryPage = () => {
   }
 
   return (
-    <PageLayout
-      alertHandler={errorHandler}
-      toggleAlert={state.toggleAlert}
-      alertTimer={3000}
-    >
+    <PageLayout>
       <RecoveryDisplay
         message={state.message}
         displayInfo={[

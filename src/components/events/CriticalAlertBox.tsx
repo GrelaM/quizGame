@@ -8,31 +8,31 @@ import {
 } from '@chakra-ui/react'
 import { useEffect } from 'react'
 
-interface AlertDisplayProps {
-  shouldDisplay: boolean
-  type: 'info' | 'warning' | 'success' | 'error' | undefined
-  title: string
-  message: string
-  alertHandler: () => void
-  alertTimer?: number
+import { useGlobalState } from '../../providers/StateProvider'
+import { GlobalHandler } from '../../constants/interface/provider/globalHandler'
+import { GlobalAction } from '../../constants/interface/provider/globalAction'
+
+const alertHandler = (setGlobalState: React.Dispatch<GlobalAction>) => {
+  setGlobalState({ type: GlobalHandler.CLEAR_ALERT_HANDLER })
 }
 
-const AlertBox = (props: AlertDisplayProps) => {
+const AlertBox = () => {
+  const [globalState, setGlobalState] = useGlobalState()
+
   useEffect(() => {
-    const timer = props.alertTimer ? props.alertTimer : 3000
-    if(!props.shouldDisplay) return () => {}
+    if (!globalState.alert.status) return () => {}
     const close = setTimeout(() => {
-      props.alertHandler()
-    }, timer)
+      alertHandler(setGlobalState)
+    }, globalState.alert.displayTimer)
 
     return () => {
       clearTimeout(close)
     }
-  }, [props])
+  }, [globalState.alert.status, globalState.alert.displayTimer, setGlobalState])
 
   return (
     <Flex
-      display={props.shouldDisplay ? 'flex' : 'none'}
+      display={globalState.alert.status ? 'flex' : 'none'}
       bg={'rgba(0, 0, 0, 0.6)'}
       zIndex={1}
       position="absolute"
@@ -44,7 +44,7 @@ const AlertBox = (props: AlertDisplayProps) => {
       alignItems="center"
     >
       <Alert
-        status={props.type}
+        status={globalState.alert.type}
         w={'100%'}
         maxW={300}
         variant="solid"
@@ -52,15 +52,15 @@ const AlertBox = (props: AlertDisplayProps) => {
         boxShadow="dark-lg"
       >
         <AlertIcon />
-        <Flex flexDirection={'column'} textAlign={"left"}>
-          <AlertTitle mr={2}>{props.title}</AlertTitle>
-          <AlertDescription mr={2}>{props.message}</AlertDescription>
+        <Flex flexDirection={'column'} textAlign={'left'}>
+          <AlertTitle mr={2}>{globalState.alert.title}</AlertTitle>
+          <AlertDescription mr={2}>{globalState.alert.message}</AlertDescription>
         </Flex>
         <CloseButton
           position="absolute"
           right="8px"
           top="8px"
-          onClick={props.alertHandler}
+          onClick={() => alertHandler(setGlobalState)}
         />
       </Alert>
     </Flex>

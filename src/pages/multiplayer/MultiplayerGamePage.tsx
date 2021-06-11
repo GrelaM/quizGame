@@ -65,7 +65,7 @@ const MultiplayerGamePage = () => {
     onEndGameSocketHandler(socket, dispatch)
     onResultsHandler(socket, dispatch)
     socket.on(SocketNames.FATAL_ERROR, () => history.push('/'))
-  }, [setGlobalState])
+  }, [setGlobalState, history])
 
   useEffect(() => {
     if (!state.game.counterState) return () => {}

@@ -6,11 +6,9 @@ import CustomInput from '../../components/custom/global/CustomInput'
 import Btn from '../../components/custom/button/Btn'
 import SettingsDisplay from '../../components/custom/global/SettingsDisplay'
 
-import {
-  initialState,
-  settingsReducer,
-  Handlers
-} from '../../functions/tools/global/settingsReducer'
+import { initialState } from '../../constants/initialState/settings'
+import { SettingsHandler } from '../../constants/interface/settings/settingsHandler'
+import { settingsReducer } from '../../functions/tools/global/settingsReducer'
 
 interface GameSettingsProps {
   creatingNewGameHandler: (data: {
@@ -27,10 +25,10 @@ const GameSettings = (props: GameSettingsProps) => {
   const settingsArray = Object.values(state.gameSettings)
 
   const dispatchHandler = (
-    handlerType:
-      | Handlers.QUANTITY_HANDLER
-      | Handlers.TIME_HANDLER
-      | Handlers.LEVEL_HANDLER,
+    handlerType: 
+      | SettingsHandler.QUANTITY_HANDLER
+      | SettingsHandler.TIME_HANDLER
+      | SettingsHandler.LEVEL_HANDLER,
     setKey: number
   ) => {
     dispatch({ type: handlerType, value: Number(setKey) })
@@ -51,7 +49,7 @@ const GameSettings = (props: GameSettingsProps) => {
         value={state.nicknameInput}
         maxLength={12}
         onChange={(event) =>
-          dispatch({ type: Handlers.NICKNAME_HANDLER, value: event })
+          dispatch({ type: SettingsHandler.NICKNAME_HANDLER, value: event })
         }
       />
       {settingsArray.map((el, index) => {

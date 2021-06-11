@@ -112,11 +112,7 @@ const GamePage = () => {
   }
 
   return (
-    <PageLayout
-      toggleAlert={state.toggleAlert}
-      alertTimer={5000}
-      alertHandler={() => errorHandler(dispatch, setUseGlobalState, errorHandlerCallback)}
-    >
+    <PageLayout>
       <QuestionCard
         question={state.nextQuestion.question}
         hints={state.displayedHints}
