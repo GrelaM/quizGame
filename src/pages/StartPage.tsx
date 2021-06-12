@@ -17,6 +17,13 @@ const StartPage = () => {
       type: GlobalHandler.MENU_HANDLER,
       value: { header: 'quiz game', activeState: false }
     })
+    setGlobalState({
+      type: GlobalHandler.SETTINGS_HANDLER,
+      value: {
+        toggleLoading: false,
+        credentials: false
+      }
+    })
   }, [setGlobalState])
 
   const gameModeHandler = (mode: 1 | 2) => {
@@ -33,13 +40,13 @@ const StartPage = () => {
       <Btn
         name={'single player'}
         type={'main'}
-        margin={'small'}
+        margin={'normal'}
         clickHandler={gameModeHandler.bind(this, 1)}
       />
       <Btn
         name={'multiplayer'}
         type={'aux'}
-        margin={'normal'}
+        margin={'small'}
         clickHandler={gameModeHandler.bind(this, 2)}
       />
     </PageLayout>

@@ -29,7 +29,7 @@ const Header = () => {
   }
 
   return (
-    <Flex w="100%" zIndex={200} direction="column" boxShadow="lg" mb={4}>
+    <Flex w="100%" zIndex={900} direction="column" boxShadow="lg" mb={4}>
       <Flex
         w="inherit"
         p={4}

@@ -1,11 +1,11 @@
-import { Answer, Handlers } from '../../tools/singlePlayer/gamePageReducer'
+import { Handlers } from '../../../constants/interface/game/gameHandler'
+import { Action } from '../../../constants/interface/game/gameAction'
+import { GlobalHandler } from '../../../constants/interface/provider/globalHandler'
+import { GlobalAction } from '../../../constants/interface/provider/globalAction'
+import { Answer } from '../../../constants/interface/global/game'
+
 import { singleAnswerRes } from '../../connection/singlePlayer/singleAnswerRes'
 import { singleQuestionReq } from '../../connection/singlePlayer/singleQuestionReq'
-import { Action } from '../../tools/singlePlayer/gamePageReducer'
-import {
-  Action as GlobalAction,
-  Handlers as GlobalHandlers
-} from '../../tools/global/contextReducer'
 
 export const fetchingData = async (
   gameId: string,
@@ -23,15 +23,15 @@ export const fetchingData = async (
     }
   } catch (e) {
     setUseGlobalState({
-      type: GlobalHandlers.SET_ALERT_HANDLER,
+      type: GlobalHandler.ALERT_HANDLER,
       value: {
         type: 'error',
         title: 'Error occured...',
         message: e.message,
-        status: true
+        status: true,
+        displayTimer: 3000
       }
     })
-    dispatch({ type: Handlers.TOGGLE_ALERT_HANDLER, value: true })
   }
 }
 
@@ -44,29 +44,27 @@ export const uploadingAnswerData = async (
   gameStatus: boolean
 ) => {
   try {
-    dispatch({ type: Handlers.LOADING_HANDLER, value: true })
+    setUseGlobalState({
+      type: GlobalHandler.SETTINGS_HANDLER,
+      value: { toggleLoading: true, credentials: false }
+    })
     await singleAnswerRes(gameId, nextQuestion, answer)
     dispatch({ type: Handlers.REQUESTING_QUESTION_HANDLER, value: gameStatus })
   } catch (e) {
     setUseGlobalState({
-      type: GlobalHandlers.SET_ALERT_HANDLER,
+      type: GlobalHandler.ALERT_HANDLER,
       value: {
         type: 'error',
         title: 'Error occured...',
         message: e.message,
-        status: true
+        status: true,
+        displayTimer: 3000
       }
     })
-    dispatch({ type: Handlers.TOGGLE_ALERT_HANDLER, value: true })
+    setUseGlobalState({
+      type: GlobalHandler.SETTINGS_HANDLER,
+      value: { toggleLoading: true, credentials: false }
+    }) 
   }
 }
 
-export const errorHandler = (
-  dispatch: (action: Action) => void,
-  setUseGlobalState: React.Dispatch<GlobalAction>,
-  callback: () => void
-) => {
-  setUseGlobalState({ type: GlobalHandlers.CLEAR_ALERT_HANDLER })
-  dispatch({type: Handlers.TOGGLE_ALERT_HANDLER, value: false})
-  callback()
-}

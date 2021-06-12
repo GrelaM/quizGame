@@ -1,39 +1,35 @@
-import { useReducer, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-import { useGameState } from '../../providers/GlobalStateProvider'
-import { Handlers as GlobalHandlers } from '../../functions/tools/global/contextReducer'
 import { LocalStorage } from '../../constants/localStorage'
 
-import {
-  initialState,
-  singlePlayerReducer,
-  Handlers
-} from '../../functions/tools/singlePlayer/singlePlayerReducer'
+import { useGlobalState } from '../../providers/StateProvider'
+import { GlobalHandler } from '../../constants/interface/provider/globalHandler'
+
 import {
   startGameHandler,
-  clearAlertHandler,
   credentialsAgreeHandler,
   credentialsDisagreeHandler
 } from '../../functions/other/singlePlayer/settingsHandlers'
 
 import PageLayout from '../../components/layout/PageLayout'
 import AlertDialog from '../../components/events/AlertDialog'
-import LoadingSpinner from '../../components/layout/LoadingSpinner'
 
 import GameSettings from '../../containers/global/GameSettings'
 
 const SettingsPage = () => {
   const history = useHistory()
-  const setGlobalState = useGameState()[1]
-  const [state, dispatch] = useReducer(singlePlayerReducer, initialState)
+  const [globalState, setGlobalState] = useGlobalState()
 
   useEffect(() => {
     setGlobalState({
-      type: GlobalHandlers.ON_GAME_SETTINGS_HANDLER,
-      value: { header: 'single player', mode: 'single player' }
+      type: GlobalHandler.MENU_HANDLER,
+      value: { header: 'single player', activeState: true }
     })
     if (window.localStorage.getItem(LocalStorage.SINGLE_GAME)) {
-      dispatch({ type: Handlers.CREDENTIALS_HANDLER, value: true })
+      setGlobalState({
+        type: GlobalHandler.SETTINGS_HANDLER,
+        value: { credentials: true, toggleLoading: false }
+      })
     }
 
     return () => {}
@@ -43,13 +39,13 @@ const SettingsPage = () => {
     <PageLayout>
       <GameSettings
         creatingNewGameHandler={(settings) => {
-          startGameHandler(settings, dispatch, setGlobalState, () =>
+          startGameHandler(settings, setGlobalState, () =>
             history.push('/waitingroom')
           )
         }}
       />
       <AlertDialog
-        isOpen={state.credentials}
+        isOpen={globalState.settings.credentials}
         agree={() =>
           credentialsAgreeHandler(
             () => history.push('/singlegame/recovery'),
@@ -59,17 +55,16 @@ const SettingsPage = () => {
         disagree={() =>
           credentialsDisagreeHandler(
             () => window.localStorage.removeItem('game'),
-            dispatch
+            setGlobalState
           )
         }
         onClose={() =>
           credentialsDisagreeHandler(
             () => window.localStorage.removeItem('game'),
-            dispatch
+            setGlobalState
           )
         }
       />
-      <LoadingSpinner toggleSpinner={state.isLoading} />
     </PageLayout>
   )
 }

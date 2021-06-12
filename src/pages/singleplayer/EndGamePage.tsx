@@ -1,55 +1,52 @@
 import { Flex, Text } from '@chakra-ui/react'
-import { useEffect, useReducer } from 'react'
+import { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import { useGameState } from '../../providers/GlobalStateProvider'
-import { Handlers as GlobalHandlers } from '../../functions/tools/global/contextReducer'
 import { LocalStorage } from '../../constants/localStorage'
+import { useGlobalState } from '../../providers/StateProvider'
+import { GlobalHandler } from '../../constants/interface/provider/globalHandler'
 
 import { getResultHandler } from '../../functions/other/singlePlayer/resultsHandlers'
-import {
-  Handlers,
-  initialState,
-  resultReducer
-} from '../../functions/tools/singlePlayer/resultsReducer'
 
 import PageLayeout from '../../components/layout/PageLayout'
 import Picture from '../../components/custom/global/Picture'
 import Column from '../../components/layout/Column'
 import Btn from '../../components/custom/button/Btn'
 import StarLayout from '../../components/layout/StarLayout'
-import LoadingSpinner from '../../components/layout/LoadingSpinner'
 
 const EndGamePage = () => {
   const history = useHistory()
-  const [state, dispatch] = useReducer(resultReducer, initialState)
-  const [useGlobalState, setUseGlobalState] = useGameState()
+  const [state, setState] = useState({
+    points: 0,
+    correctAnswers: 0,
+    questionQuantity: 0
+  })
+  const [globalState, setGlobalState] = useGlobalState()
 
-  const gameId = useGlobalState.singleGame.gameId
+  const gameId = globalState.game.gameId ? globalState.game.gameId : ''
 
   useEffect(() => {
-    getResultHandler(gameId, dispatch, setUseGlobalState, () =>
-      window.localStorage.removeItem(LocalStorage.SINGLE_GAME)
+    getResultHandler(
+      gameId,
+      (points: number, correctAnswers: number, questionQuantity: number) =>
+        setState({
+          points: points,
+          correctAnswers: correctAnswers,
+          questionQuantity: questionQuantity
+        }),
+      setGlobalState,
+      () => window.localStorage.removeItem(LocalStorage.SINGLE_GAME)
     )
-  }, [gameId, setUseGlobalState])
+  }, [gameId, setGlobalState])
 
   const newGameHandler = () => {
-    setUseGlobalState({ type: GlobalHandlers.RESET_STATE })
+    setGlobalState({ type: GlobalHandler.RESET_HANDLER })
     window.localStorage.removeItem(LocalStorage.SINGLE_GAME)
-    history.push('/')
-  }
-
-  const errorHandler = () => {
-    window.localStorage.removeItem(LocalStorage.SINGLE_GAME)
-    dispatch({ type: Handlers.TOGGLE_ALERT_HANDLER, value: false })
-    setUseGlobalState({ type: GlobalHandlers.CLEAR_ALERT_HANDLER })
     history.push('/')
   }
 
   return (
     <PageLayeout>
-      {state.isLoading ? (
-        <LoadingSpinner toggleSpinner={state.isLoading} />
-      ) : (
+      {globalState.settings.toggleLoading ? null : (
         <Column>
           <Picture type={'result'} size={'small'} />
           <Flex
@@ -79,7 +76,7 @@ const EndGamePage = () => {
               </Text>
               <StarLayout>
                 <Text marginInline={1} color="primary.dark">
-                  {useGlobalState.user.nickname}
+                  {globalState.user.nickname}
                 </Text>
               </StarLayout>
             </Flex>
@@ -96,7 +93,7 @@ const EndGamePage = () => {
                 You've collected
               </Text>
               <Text marginInline={1} color="primary.dark" fontWeight="800">
-                {state.gameResults.points}
+                {state.points}
               </Text>
               points!
             </Flex>
@@ -113,8 +110,7 @@ const EndGamePage = () => {
                 You gave:
               </Text>
               <Text marginInline={1} color="primary.dark" fontWeight="650">
-                {state.gameResults.correctAnswers} /{' '}
-                {state.gameResults.questionQuantity}
+                {state.correctAnswers} / {state.questionQuantity}
               </Text>
               correct answers.
             </Flex>

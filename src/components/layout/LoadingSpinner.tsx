@@ -1,9 +1,12 @@
 import { Flex, Spinner, Text } from '@chakra-ui/react'
 
-const LoadingSpinner = (props: { toggleSpinner: boolean }) => {
+import { useGlobalState } from '../../providers/StateProvider'
+
+const LoadingSpinner = () => {
+  const globalState = useGlobalState()[0]
   return (
     <Flex
-      display={props.toggleSpinner ? 'flex' : 'none'}
+      display={globalState.settings.toggleLoading ? 'flex' : 'none'}
       flexDirection="column"
       justifyContent="center"
       alignItems="center"
@@ -13,6 +16,7 @@ const LoadingSpinner = (props: { toggleSpinner: boolean }) => {
       h="100%"
       bg="rgba(0,0,0,0.75)"
       color="secondary.main"
+      zIndex={800}
     >
       <Spinner size="xl" />
       <Text letterSpacing={1} m={4} fontWeight="550">

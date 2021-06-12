@@ -1,60 +1,61 @@
 import { useEffect, useReducer } from 'react'
 import { useHistory } from 'react-router-dom'
-import { useGameState } from '../../providers/GlobalStateProvider'
-import { Handlers as GlobalHandlers } from '../../functions/tools/global/contextReducer'
-import { LocalStorage } from '../../constants/localStorage'
+import { useGlobalState } from '../../providers/StateProvider'
+import { GlobalHandler } from '../../constants/interface/provider/globalHandler'
+import { Answer } from '../../constants/interface/global/game'
 
-import {
-  gamePageReducerFunction,
-  Handlers,
-  initialState,
-  Answer
-} from '../../functions/tools/singlePlayer/gamePageReducer'
+import { gamePageReducer } from '../../functions/tools/singlePlayer/gamePageReducer'
+import { initialState } from '../../constants/initialState/singlePlayerGameState'
+
 import { hintsHandler } from '../../functions/other/singlePlayer/hintsHandler'
 import { timeHandler } from '../../functions/other/singlePlayer/timeHandler'
 import {
   fetchingData,
-  uploadingAnswerData,
-  errorHandler
+  uploadingAnswerData
 } from '../../functions/other/singlePlayer/singleGameHandlers'
 
 import PageLayout from '../../components/layout/PageLayout'
 import QuestionCard from '../../components/custom/global/QuestionCard'
 import BtnArena from '../../components/layout/GameBtnLayout'
-import LoadingSpinner from '../../components/layout/LoadingSpinner'
 
 const GamePage = () => {
   const history = useHistory()
-  const [useGlobalState, setUseGlobalState] = useGameState()
-  const [state, dispatch] = useReducer(gamePageReducerFunction, initialState)
+  const [globalState, setGlobalState] = useGlobalState()
+  const [state, dispatch] = useReducer(gamePageReducer, initialState)
 
-  const time = useGlobalState.currentGameInfo.timer
-  const gameId = useGlobalState.singleGame.gameId
+  const time = globalState.game.timer ? globalState.game.timer : 0
+  const gameId = globalState.game.gameId ? globalState.game.gameId : ''
 
   useEffect(() => {
-    if (!state.shouldReqNextQuestion) {
-      setUseGlobalState({
-        type: GlobalHandlers.HEADER_HANDLER,
-        value: 'WELL DONE!!!'
+    if (!state.toggleStart.nextQuestionReq) {
+      setGlobalState({
+        type: GlobalHandler.MENU_HANDLER,
+        value: { header: 'WELL DONE!!!', activeState: true }
       })
       history.push('/result')
     } else {
-      fetchingData(gameId, dispatch, setUseGlobalState)
+      fetchingData(gameId, dispatch, setGlobalState)
     }
   }, [
-    state.shouldReqNextQuestion,
-    state.questionRounds,
+    state.toggleStart.nextQuestionReq,
+    state.rounds.question,
     gameId,
     history,
-    setUseGlobalState
+    setGlobalState
   ])
 
   useEffect(() => {
-    if (!state.shouldTimerAndHintsGoOn) return () => {}
-    dispatch({ type: Handlers.LOADING_HANDLER, value: false })
-    setUseGlobalState({
-      type: GlobalHandlers.HEADER_HANDLER,
-      value: `Question #${state.nextQuestion.questionNumber}`
+    if (!state.toggleStart.timerAndHints) return () => {}
+    setGlobalState({
+      type: GlobalHandler.SETTINGS_HANDLER,
+      value: { toggleLoading: false, credentials: false }
+    })
+    setGlobalState({
+      type: GlobalHandler.MENU_HANDLER,
+      value: {
+        header: `Question #${state.nextQuestion.number}`,
+        activeState: true
+      }
     })
     const hint = hintsHandler(time, state.nextQuestion.hints, dispatch)
     const timer = timeHandler(time, 0, dispatch)
@@ -63,67 +64,61 @@ const GamePage = () => {
       clearTimeout(timer)
     }
   }, [
-    setUseGlobalState,
-    state.gameRounds,
-    state.shouldTimerAndHintsGoOn,
+    state.toggleStart.timerAndHints,
+    state.rounds.game,
+    setGlobalState,
     state.nextQuestion.hints,
-    state.nextQuestion.questionNumber,
+    state.nextQuestion.number,
     gameId,
     time
   ])
 
   useEffect(() => {
-    if (!state.shouldSendRes) return () => {}
-    const nextQuestionNumber = state.nextQuestion.questionNumber - 1
+    if (!state.toggleStart.answerRes) return () => {}
+    const nextQuestionNumber = state.nextQuestion.number - 1
     uploadingAnswerData(
       gameId,
       nextQuestionNumber,
       { code: -1, value: '' },
       dispatch,
-      setUseGlobalState,
+      setGlobalState,
       state.nextQuestion.gameStatus
     )
   }, [
-    state.shouldSendRes,
-    state.resRounds,
-    state.nextQuestion.questionNumber,
+    state.toggleStart.answerRes,
+    state.rounds.answer,
+    state.nextQuestion.number,
     state.nextQuestion.gameStatus,
     gameId,
-    setUseGlobalState
+    setGlobalState
   ])
 
   // BTN METHOD
   const responseHandler = (answer: Answer) => {
     if (state.chosenAnwserCode !== -1) return
-    const nextQuestionNumber = state.nextQuestion.questionNumber - 1
+    const nextQuestionNumber = state.nextQuestion.number - 1
     uploadingAnswerData(
       gameId,
       nextQuestionNumber,
       answer,
       dispatch,
-      setUseGlobalState,
+      setGlobalState,
       state.nextQuestion.gameStatus
     )
-  }
-
-  const errorHandlerCallback = () => {
-    localStorage.removeItem(LocalStorage.SINGLE_GAME)
-    history.push('/')
   }
 
   return (
     <PageLayout>
       <QuestionCard
         question={state.nextQuestion.question}
-        hints={state.displayedHints}
-        progress={state.counter}
+        hints={state.onDisplay.hints}
+        progress={state.onDisplay.counter}
       />
       <BtnArena
         answers={state.nextQuestion.answers}
         passedCode={state.chosenAnwserCode}
         btnHandler={(answer) => responseHandler(answer)}
       />
-      <LoadingSpinner toggleSpinner={state.loading} />
     </PageLayout>
   )
 }

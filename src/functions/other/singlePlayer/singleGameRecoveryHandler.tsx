@@ -1,34 +1,39 @@
 import { recoveryReq } from '../../connection/singlePlayer/singleRecoveryReq'
-import { Handlers, Action } from '../../tools/singlePlayer/recoveryPageReducer'
-import {
-  Handlers as GlobalHandlers,
-  Action as GlobalAction
-} from '../../tools/global/contextReducer'
+import { Handlers } from '../../../constants/interface/singleRecovery/recoveryHandler'
+import { Action } from '../../../constants/interface/singleRecovery/recoveryAction'
+import { GlobalHandler } from '../../../constants/interface/provider/globalHandler'
+import { GlobalAction } from '../../../constants/interface/provider/globalAction'
 
 export const singleGameRecoveryReq = async (
-  gameId: string,
+  gameId: undefined | string,
   dispatch: React.Dispatch<Action>,
-  setGameState: React.Dispatch<GlobalAction>
+  setGlobalState: React.Dispatch<GlobalAction>
 ) => {
   try {
+    if (gameId === undefined) throw new Error('Recovery failed!')
     const fetchedData = await recoveryReq(gameId)
     if (fetchedData) {
-      const recoveredData: {message: string, nextQuestion: number} = fetchedData
+      const recoveredData: { message: string; nextQuestion: number } =
+        fetchedData
       dispatch({
         type: Handlers.PROCEED_GAME_HANDLER,
         value: recoveredData.message
       })
     }
   } catch (e) {
-    setGameState({
-      type: GlobalHandlers.SET_ALERT_HANDLER,
+    setGlobalState({
+      type: GlobalHandler.ALERT_HANDLER,
       value: {
         type: 'error',
         title: e.message,
-        message: 'Unfortunately we couldn\'t recovery this game!',
-        status: true
+        message: "Unfortunately we couldn't recovery this game!",
+        status: true,
+        displayTimer: 3000
       }
     })
-    dispatch({ type: Handlers.TOGGLE_ALERT, value: true })
+    setGlobalState({
+      type: GlobalHandler.SETTINGS_HANDLER,
+      value: { toggleLoading: true, credentials: true }
+    })
   }
 }

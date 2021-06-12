@@ -151,7 +151,6 @@ const MultiplayerGamePage = () => {
   return (
     <PageLayout>
       {mode}
-      <LoadingSpinner toggleSpinner={state.onLoading} />
     </PageLayout>
   )
 }

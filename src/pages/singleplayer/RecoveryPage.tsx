@@ -1,57 +1,61 @@
 import { useEffect, useReducer } from 'react'
 import { useHistory } from 'react-router-dom'
+
 import { LocalStorage } from '../../constants/localStorage'
-import { useGameState } from '../../providers/GlobalStateProvider'
-import { Handlers as GlobalHandlers } from '../../functions/tools/global/contextReducer'
+import { SinglePlayerLocalStorage } from '../../constants/interface/global/game'
+
+import { useGlobalState } from '../../providers/StateProvider'
+import { GlobalHandler } from '../../constants/interface/provider/globalHandler'
+
 import { singleGameRecoveryReq } from '../../functions/other/singlePlayer/singleGameRecoveryHandler'
 
-import {
-  recoveryReducer,
-  initialState,
-  Handlers,
-  LocalStorageType
-} from '../../functions/tools/singlePlayer/recoveryPageReducer'
+import { recoveryReducer } from '../../functions/tools/singlePlayer/recoveryPageReducer'
+import { Handlers } from '../../constants/interface/singleRecovery/recoveryHandler'
+import { initialState } from '../../constants/initialState/singlePlayerRecovery'
 
-import LoadingSpinner from '../../components/layout/LoadingSpinner'
 import PageLayout from '../../components/layout/PageLayout'
 import Btn from '../../components/custom/button/Btn'
 import RecoveryDisplay from '../../components/custom/global/GameInfoDisplay'
 
 const RecoveryPage = () => {
   const history = useHistory()
-  const setGameState = useGameState()[1]
+  const [globalState, setGlobalState] = useGlobalState()
   const [state, dispatch] = useReducer(recoveryReducer, initialState)
 
   useEffect(() => {
-    const localStorage: LocalStorageType = JSON.parse(
+    const localStorage: SinglePlayerLocalStorage = JSON.parse(
       window.localStorage.getItem(LocalStorage.SINGLE_GAME)!
     )
-    setGameState({
-      type: GlobalHandlers.SET_RECOVERY_MODE_SINGLE_GAME_HANDLER,
+    setGlobalState({
+      type: GlobalHandler.USER_HANDLER,
       value: {
+        id: undefined,
         nickname: localStorage.user,
-        status: 'player',
-        artificialGameId: localStorage.gameSettings.artificialGameId,
-        gameId: localStorage.gameSettings.gameId,
-        timer: localStorage.gameSettings.timer
+        status: 'player'
       }
     })
-    dispatch({ type: Handlers.RECOVERED_DATA_HANDLER, value: localStorage })
-  }, [setGameState])
+    setGlobalState({
+      type: GlobalHandler.GAME_HANDLER,
+      value: {
+        mode: 'single player',
+        dummyId: localStorage.gameSettings.artificialGameId,
+        gameId: localStorage.gameSettings.gameId,
+        roomId: undefined,
+        quantity: undefined,
+        timer: localStorage.gameSettings.timer,
+        level: undefined
+      }
+    })
+    dispatch({ type: Handlers.RECOVERED_DATA_HANDLER, value: true })
+  }, [setGlobalState])
 
   useEffect(() => {
-    if (state.gameId === '') return () => {}
-    singleGameRecoveryReq(state.gameId, dispatch, setGameState)
-  }, [state.gameId, setGameState])
+    if (globalState.game.gameId === '') return () => {}
+    singleGameRecoveryReq(globalState.game.gameId, dispatch, setGlobalState)
+  }, [globalState.game.gameId, setGlobalState])
 
   const startNewGameHandler = () => {
     window.localStorage.removeItem('game')
-    history.push('/')
-  }
-
-  const errorHandler = () => {
-    dispatch({ type: Handlers.TOGGLE_ALERT, value: false })
-    setGameState({ type: GlobalHandlers.CLEAR_ALERT_HANDLER })
     history.push('/')
   }
 
@@ -60,8 +64,11 @@ const RecoveryPage = () => {
       <RecoveryDisplay
         message={state.message}
         displayInfo={[
-          { header: 'Game ID: ', message: state.artificialGameId },
-          { header: 'Established by: ', message: state.user }
+          {
+            header: 'Game ID: ',
+            message: globalState.game.dummyId ? globalState.game.dummyId : ''
+          },
+          { header: 'Established by: ', message: globalState.user.nickname }
         ]}
         fetchedData={state.recoveredData}
       />
@@ -78,7 +85,6 @@ const RecoveryPage = () => {
         margin={'small'}
         clickHandler={startNewGameHandler}
       />
-      <LoadingSpinner toggleSpinner={state.isLoading}/>
     </PageLayout>
   )
 }

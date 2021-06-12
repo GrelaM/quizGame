@@ -2,6 +2,7 @@ import { Flex } from '@chakra-ui/react'
 
 import HeaderBar from '../../components/custom/global/Header'
 import CriticalAlertBox from '../events/CriticalAlertBox'
+import LoadingSpinner from './LoadingSpinner'
 
 interface PageLayoutProps {
   children: React.ReactNode
@@ -18,6 +19,7 @@ const PageLayout = (props: PageLayoutProps) => {
     >
       <HeaderBar />
       <CriticalAlertBox />
+      <LoadingSpinner />
       {props.children}
     </Flex>
   )

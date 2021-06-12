@@ -1,45 +1,65 @@
 import { fetchResultsHandler } from '../../connection/singlePlayer/singleResultsReq'
-import { Handlers, Action } from '../../tools/singlePlayer/resultsReducer'
-import {
-  Handlers as GlobalHandlers,
-  Action as GlobalAction
-} from '../../tools/global/contextReducer'
+import { GlobalHandler } from '../../../constants/interface/provider/globalHandler'
+import { GlobalAction } from '../../../constants/interface/provider/globalAction'
 
 export const getResultHandler = async (
   gameId: string,
-  dispatch: React.Dispatch<Action>,
+  setStateHandler: (
+    points: number,
+    correctAnswers: number,
+    questionQuantity: number
+  ) => void,
   setGlobalState: React.Dispatch<GlobalAction>,
   callback: () => void
 ) => {
   try {
     const fechtedData = await fetchResultsHandler(gameId)
+
     if (fechtedData.status === 404) {
       setGlobalState({
-        type: GlobalHandlers.SET_ALERT_HANDLER,
+        type: GlobalHandler.ALERT_HANDLER,
         value: {
           type: 'error',
           title: `Ups... ${fechtedData.status}`,
           message: fechtedData.data.message,
-          status: true
+          status: true,
+          displayTimer: 3000
         }
       })
-      dispatch({ type: Handlers.TOGGLE_ALERT_HANDLER, value: true })
-      dispatch({ type: Handlers.IS_LOADING_HANDLER, value: false })
+      setGlobalState({
+        type: GlobalHandler.SETTINGS_HANDLER,
+        value: { toggleLoading: false, credentials: false }
+      })
     } else {
-      dispatch({ type: Handlers.RESULT_HANDLER, value: fechtedData.data })
+      setStateHandler(
+        fechtedData.data.points,
+        fechtedData.data.givenCorrectAnswers,
+        fechtedData.data.questions
+      )
+      setGlobalState({
+        type: GlobalHandler.SETTINGS_HANDLER,
+        value: { toggleLoading: false, credentials: false }
+      })
       callback()
     }
   } catch (e) {
     setGlobalState({
-      type: GlobalHandlers.SET_ALERT_HANDLER,
+      type: GlobalHandler.ALERT_HANDLER,
       value: {
         type: 'error',
         title: `Ups... ${e.response.status}`,
         message: e.message,
-        status: true
+        status: true,
+        displayTimer: 3000
       }
     })
-    dispatch({ type: Handlers.TOGGLE_ALERT_HANDLER, value: true })
-    dispatch({ type: Handlers.IS_LOADING_HANDLER, value: false })
+    setGlobalState({
+      type: GlobalHandler.SETTINGS_HANDLER,
+      value: {
+        toggleLoading: false,
+        credentials: false
+      }
+    })
+    callback()
   }
 }

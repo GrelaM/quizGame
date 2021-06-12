@@ -33,7 +33,8 @@ export type GlobalAction =
       type: GlobalHandler.GAME_HANDLER
       value: {
         mode: undefined | 'single player' | 'multiplayer'
-        gameId: string
+        dummyId: undefined | string
+        gameId: undefined | string
         roomId: undefined | string
         timer: undefined | number
         quantity: undefined | number
@@ -52,4 +53,14 @@ export type GlobalAction =
     }
   | {
       type: GlobalHandler.CLEAR_ALERT_HANDLER
+    }
+  | {
+      type: GlobalHandler.SETTINGS_HANDLER
+      value: {
+        toggleLoading: boolean
+        credentials: boolean
+      }
+    }
+  | {
+      type: GlobalHandler.RESET_HANDLER
     }

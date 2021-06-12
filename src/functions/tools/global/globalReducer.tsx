@@ -38,6 +38,10 @@ export const globalReducer = (
       return { ...state, alert: action.value }
     case GlobalHandler.CLEAR_ALERT_HANDLER:
       return { ...state, alert: initialState.alert }
+    case GlobalHandler.SETTINGS_HANDLER:
+      return { ...state, settings: action.value }
+    case GlobalHandler.RESET_HANDLER:
+      return initialState
     default:
       return { ...state }
   }

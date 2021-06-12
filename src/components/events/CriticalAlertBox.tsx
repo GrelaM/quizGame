@@ -34,7 +34,7 @@ const AlertBox = () => {
     <Flex
       display={globalState.alert.status ? 'flex' : 'none'}
       bg={'rgba(0, 0, 0, 0.6)'}
-      zIndex={1}
+      zIndex={800}
       position="absolute"
       top={0}
       w="100%"

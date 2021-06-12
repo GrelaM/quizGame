@@ -17,6 +17,7 @@ export interface GlobalStateInterface {
   }
   game: {
     mode: undefined | 'single player' | 'multiplayer'
+    dummyId: undefined | string 
     gameId: undefined | string
     roomId: undefined | string
     timer: undefined | number
@@ -29,5 +30,9 @@ export interface GlobalStateInterface {
     title: string
     message: string
     displayTimer: number
+  }
+  settings: {
+    toggleLoading: boolean
+    credentials: boolean
   }
 }

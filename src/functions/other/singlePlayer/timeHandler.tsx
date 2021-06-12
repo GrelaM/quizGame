@@ -1,5 +1,5 @@
-import { Handlers } from '../../tools/singlePlayer/gamePageReducer'
-import { Action } from '../../tools/singlePlayer/gamePageReducer'
+import { Handlers } from '../../../constants/interface/game/gameHandler'
+import { Action } from '../../../constants/interface/game/gameAction'
 
 export const timeHandler = (
   time: number,

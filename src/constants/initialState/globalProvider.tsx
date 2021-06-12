@@ -19,6 +19,7 @@ export const initialState: GlobalStateInterface = {
   },
   game: {
     mode: undefined,
+    dummyId: '#...',
     gameId: undefined,
     roomId: undefined,
     timer: undefined,
@@ -31,5 +32,9 @@ export const initialState: GlobalStateInterface = {
     title: '',
     message: '',
     displayTimer: 1000
+  },
+  settings: {
+    toggleLoading: false,
+    credentials: false
   }
 }

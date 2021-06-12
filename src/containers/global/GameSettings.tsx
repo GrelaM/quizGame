@@ -1,5 +1,5 @@
 import { useReducer } from 'react'
-import { useGameState } from '../../providers/GlobalStateProvider'
+import { useGlobalState } from '../../providers/StateProvider'
 import { Flex } from '@chakra-ui/react'
 
 import CustomInput from '../../components/custom/global/CustomInput'
@@ -20,7 +20,7 @@ interface GameSettingsProps {
 }
 
 const GameSettings = (props: GameSettingsProps) => {
-  const game = useGameState()[0]
+  const game = useGlobalState()[0]
   const [state, dispatch] = useReducer(settingsReducer, initialState)
   const settingsArray = Object.values(state.gameSettings)
 
@@ -44,7 +44,7 @@ const GameSettings = (props: GameSettingsProps) => {
       paddingBlock={1}
     >
       <CustomInput
-        isDisabled={game.mode === 'multiplayer' ? true : false}
+        isDisabled={game.menu.header === 'multiplayer' ? true : false}
         placeholder={'Enter your nickname...'}
         value={state.nicknameInput}
         maxLength={12}
@@ -65,8 +65,8 @@ const GameSettings = (props: GameSettingsProps) => {
       })}
       <Btn
         disabled={
-          game.mode === 'multiplayer' ||
-          (game.mode === 'single player' && state.nicknameInput)
+          game.menu.header === 'multiplayer' ||
+          (game.menu.header === 'single player' && state.nicknameInput)
             ? false
             : true
         }

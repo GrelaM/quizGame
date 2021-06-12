@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 export type ResultsType = {
+  message: string
   points: number
   correctAnswers: number
   questionQuantity: number

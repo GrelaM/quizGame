@@ -12,6 +12,7 @@ const Btn = (props: MainButtonProps) => {
   return (
     <ScaleFade initialScale={0.9} in={true}>
       <Button
+        zIndex={1}
         disabled={props.disabled}
         marginBlock={props.margin !== 'small' ? 4 : 1}
         w={280}

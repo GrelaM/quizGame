@@ -1,26 +1,27 @@
 import { Flex } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-import { useGameState } from '../../providers/GlobalStateProvider'
-import { Handlers as GlobalHandlers } from '../../functions/tools/global/contextReducer'
+import { useGlobalState } from '../../providers/StateProvider'
+import { GlobalHandler } from '../../constants/interface/provider/globalHandler'
 
 import PageLayout from '../../components/layout/PageLayout'
-import LoadingSpinner from '../../components/layout/LoadingSpinner'
 import Btn from '../../components/custom/button/Btn'
 import IntervalCard from '../../components/custom/global/IntervalCard'
 
 const WaitingRoomPage = () => {
   const history = useHistory()
-  const [gameState, setGameState] = useGameState()
+  const [gameState, setGameState] = useGlobalState()
   const [counter, setCounter] = useState<number>(0)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
     setGameState({
-      type: GlobalHandlers.HEADER_HANDLER,
-      value: `Game: ${gameState.singleGame.artificialGameId}`
+      type: GlobalHandler.MENU_HANDLER,
+      value: {
+        header: `Game: ${gameState.game.dummyId}`,
+        activeState: true
+      }
     })
-  }, [setGameState, gameState.singleGame.artificialGameId])
+  }, [setGameState, gameState.game.dummyId])
 
   useEffect(() => {
     let leftTime: number
@@ -31,7 +32,9 @@ const WaitingRoomPage = () => {
         leftTime = leftTime + 1 / 10
         setCounter((cur) => cur + 100 / 3 / 10)
       } else {
-        setIsLoading(true)
+        setGameState({type: GlobalHandler.SETTINGS_HANDLER, value: {
+          toggleLoading: true, credentials: false
+        }})
         clearInterval(interval)
 
         setTimeout(() => {
@@ -43,7 +46,7 @@ const WaitingRoomPage = () => {
     return () => {
       clearInterval(interval)
     }
-  }, [history])
+  }, [setGameState, history])
 
   const leaveGameHandler = () => {
     window.localStorage.removeItem('game')
@@ -58,6 +61,7 @@ const WaitingRoomPage = () => {
         alignItems="center"
         flex={1}
         w="100%"
+        paddingBlock={2}
       >
         <IntervalCard progress={counter} />
         <Btn
@@ -67,7 +71,6 @@ const WaitingRoomPage = () => {
           margin={'normal'}
         />
       </Flex>
-      <LoadingSpinner toggleSpinner={isLoading} />
     </PageLayout>
   )
 }
