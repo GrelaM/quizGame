@@ -1,4 +1,4 @@
-import { LocalStorage } from '../../../../constants/localStorage'
+import { LocalStorage } from '../../../../constants/interface/global/localStorage'
 import { multiplayerGameReq } from '../../../connection/multiplayer/multiplayeGameReq'
 import { recoveryReq } from '../../../connection/multiplayer/multiplayerRecoveryReq'
 

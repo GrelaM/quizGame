@@ -1,4 +1,4 @@
-import SocketNames from '../../../../constants/socketNames'
+import SocketNames from '../../../../constants/interface/global/socketNames'
 import {
   QuestionPayload,
   GameMode

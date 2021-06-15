@@ -1,6 +1,6 @@
-import SocketNames from '../../../../constants/socketNames'
+import SocketNames from '../../../../constants/interface/global/socketNames'
 import { QuestionPayload } from '../../../../constants/interface/global/game'
-import { LocalStorage } from '../../../../constants/localStorage'
+import { LocalStorage } from '../../../../constants/interface/global/localStorage'
 
 import { Handlers } from '../../../../constants/interface/multiplayerRoom/roomHandler'
 import { Action } from '../../../../constants/interface/multiplayerRoom/roomAction'

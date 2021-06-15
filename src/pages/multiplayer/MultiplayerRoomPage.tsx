@@ -5,7 +5,7 @@ import { GlobalHandler } from '../../constants/interface/provider/globalHandler'
 import { initialState } from '../../constants/initialState/multiplayerRoom'
 import { multiplayerRoomReducer } from '../../functions/tools/multiplayer/multiplayerRoomReducer'
 import { Handlers } from '../../constants/interface/multiplayerRoom/roomHandler'
-import SocketNames from '../../constants/socketNames'
+import SocketNames from '../../constants/interface/global/socketNames'
 import io from 'socket.io-client'
 
 import PageLayout from '../../components/layout/PageLayout'

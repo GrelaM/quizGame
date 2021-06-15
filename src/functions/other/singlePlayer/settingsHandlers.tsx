@@ -1,5 +1,5 @@
 import { singleGameReq } from '../../connection/singlePlayer/singleGameReq'
-import { LocalStorage } from '../../../constants/localStorage'
+import { LocalStorage } from '../../../constants/interface/global/localStorage'
 
 import { GlobalHandler } from '../../../constants/interface/provider/globalHandler'
 import { GlobalAction } from '../../../constants/interface/provider/globalAction'

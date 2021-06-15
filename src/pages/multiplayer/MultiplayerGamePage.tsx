@@ -7,7 +7,7 @@ import { Handlers } from '../../constants/interface/multiplayerGame/gameHandler'
 import { initialState } from '../../constants/initialState/multiplayerGame'
 import { GameMode } from '../../constants/interface/global/game'
 import io from 'socket.io-client'
-import SocketNames from '../../constants/socketNames'
+import SocketNames from '../../constants/interface/global/socketNames'
 
 import PageLayout from '../../components/layout/PageLayout'
 import RoomStatusDisplay from '../../components/custom/multiplayer/RoomStatusDisplay'

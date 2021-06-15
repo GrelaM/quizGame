@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import { LocalStorage } from '../../constants/localStorage'
+import { LocalStorage } from '../../constants/interface/global/localStorage'
 import { SinglePlayerLocalStorage } from '../../constants/interface/global/game'
 
 import { useGlobalState } from '../../providers/StateProvider'

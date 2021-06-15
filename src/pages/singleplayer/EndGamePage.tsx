@@ -1,7 +1,7 @@
 import { Flex, Text } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import { LocalStorage } from '../../constants/localStorage'
+import { LocalStorage } from '../../constants/interface/global/localStorage'
 import { useGlobalState } from '../../providers/StateProvider'
 import { GlobalHandler } from '../../constants/interface/provider/globalHandler'
 
