@@ -1,18 +1,15 @@
 import { useReducer, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-import { useGameState } from '../../providers/GlobalStateProvider'
-import { Handlers as GlobalHandlers } from '../../functions/tools/global/contextReducer'
-import {
-  multiplayerRoomReducer,
-  initialState,
-  Handlers
-} from '../../functions/tools/multiplayer/multiplayerRoomReducer'
+import { useGlobalState } from '../../providers/StateProvider'
+import { GlobalHandler } from '../../constants/interface/provider/globalHandler'
+import { initialState } from '../../constants/initialState/multiplayerRoom'
+import { multiplayerRoomReducer } from '../../functions/tools/multiplayer/multiplayerRoomReducer'
+import { Handlers } from '../../constants/interface/multiplayerRoom/roomHandler'
 import SocketNames from '../../constants/socketNames'
 import io from 'socket.io-client'
 
 import PageLayout from '../../components/layout/PageLayout'
 import BtnDisplay from '../../components/layout/multiplayer/RoomBtnDisplay'
-import Alert from '../../components/events/UpdateAlertBox'
 import RoomStatusDislpay from '../../components/custom/multiplayer/RoomStatusDisplay'
 
 import counterHandler from '../../functions/other/multiplayer/roomPage/counterHandler'
@@ -29,12 +26,14 @@ let socket: any
 
 const MultiplayerRoom = ({ location }: any) => {
   const history = useHistory()
-  const [globalState, setGlobalState] = useGameState()
+  const [globalState, setGlobalState] = useGlobalState()
   const [state, dispatch] = useReducer(multiplayerRoomReducer, initialState)
   const ENDPOINT = 'localhost:8080'
 
-  const roomId = globalState.multiplayer.roomId
-  const gameId = globalState.multiplayer.gameId
+  const roomId =
+    globalState.game.roomId !== undefined ? globalState.game.roomId : ''
+  const gameId =
+    globalState.game.gameId !== undefined ? globalState.game.gameId : ''
 
   useEffect(() => {
     const data = {
@@ -45,8 +44,11 @@ const MultiplayerRoom = ({ location }: any) => {
       return history.push('/multiplayer/mode')
 
     socket = io(ENDPOINT)
-    hostSocketHandler(socket, data, dispatch)
-    setGlobalState({ type: GlobalHandlers.HEADER_HANDLER, value: 'host' })
+    hostSocketHandler(socket, data, dispatch, setGlobalState)
+    setGlobalState({
+      type: GlobalHandler.MENU_HANDLER,
+      value: { header: 'host', activeState: true }
+    })
 
     return () => {
       socket.disconnect()
@@ -55,15 +57,13 @@ const MultiplayerRoom = ({ location }: any) => {
   }, [history, location.search, roomId, gameId, setGlobalState])
 
   useEffect(() => {
-    if (gameId === '' && roomId === '') return () => {}
-
-    playersUpdateSocketHandler(socket, dispatch)
+    playersUpdateSocketHandler(socket, dispatch, setGlobalState)
     counterSocketHandler(socket, dispatch)
     questionHostSocketHandler(socket, dispatch)
     onDisplayResultSocketHandler(socket, dispatch)
     onResultsHandler(socket, dispatch)
     socket.on(SocketNames.FATAL_ERROR, () => history.push('/'))
-  }, [gameId, roomId, history])
+  }, [gameId, roomId, history, setGlobalState])
 
   useEffect(() => {
     if (!state.counter.counterStatus) return () => {}
@@ -85,21 +85,20 @@ const MultiplayerRoom = ({ location }: any) => {
     socket.emit(SocketNames.START_GAME, data)
   }
 
-  const cleanSnackBarAlertHandler = () => {
-    dispatch({ type: Handlers.CLEAN_SNACKBAR_HANDLER })
-  }
-
   const shareHandler = () => {
-    const roomId = globalState.multiplayer.roomId.substring(1)
+    const roomId = globalState.game.roomId
+      ? globalState.game.roomId.substring(1)
+      : ''
     const urlLink = `http://localhost:3000/join?roomid=${roomId}&gameid=${gameId}`
     navigator.clipboard.writeText(urlLink)
-    dispatch({
-      type: Handlers.ALERT_HANDLER,
+    setGlobalState({
+      type: GlobalHandler.MENU_ALERT_HANDLER,
       value: {
         type: 'info',
         title: 'Success',
         message: 'Copied to clipboard.',
-        status: true
+        status: true,
+        displayTimer: 2000
       }
     })
   }
@@ -108,11 +107,13 @@ const MultiplayerRoom = ({ location }: any) => {
     <PageLayout>
       <RoomStatusDislpay
         roomState={state.roomState}
-        roomName={globalState.multiplayer.roomId}
+        roomName={roomId}
         headerDisplay={state.headerDisplay}
         players={state.players}
-        playerAlertHandler={() =>
-          dispatch({ type: Handlers.CLEAR_PLAYER_ALERT_HANDLER })
+        noPlayersMessage={
+          state.finaleResults.resultsState
+            ? 'Players left room...'
+            : 'Please invite players...'
         }
         counter={state.counter.currentValue}
         resultsOnDisplay={state.finaleResults.resultsOnDisplay}
@@ -120,20 +121,12 @@ const MultiplayerRoom = ({ location }: any) => {
         results={state.finaleResults.results}
       />
       <BtnDisplay
+        onResults={state.finaleResults.resultsOnDisplay}
         shareLinkBtnDisabled={state.startGameReq}
         shareLinkGameBtnHandler={shareHandler}
-        startGameBtnDisabled={
-          state.startGameReq || state.players.array.length <= 0
-        }
+        startGameBtnDisabled={state.startGameReq || state.players.length <= 0}
         startGameBtnHandler={startGameHandler}
-      />
-      <Alert
-        shouldDisplay={state.alert.status}
-        alertTimer={1000}
-        type={state.alert.type}
-        title={state.alert.title}
-        message={state.alert.message}
-        alertHandler={cleanSnackBarAlertHandler}
+        startNewGameHandler={() => history.push('/')}
       />
     </PageLayout>
   )

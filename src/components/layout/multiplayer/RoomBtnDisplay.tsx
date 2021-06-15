@@ -1,12 +1,14 @@
-import {Box} from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 
 import Btn from '../../custom/button/Btn'
 
 interface RoomBtnDisplayProps {
-    startGameBtnDisabled: boolean
-    shareLinkBtnDisabled: boolean
-    startGameBtnHandler: () => void
-    shareLinkGameBtnHandler: () => void
+  onResults: boolean
+  startGameBtnDisabled: boolean
+  shareLinkBtnDisabled: boolean
+  startGameBtnHandler: () => void
+  shareLinkGameBtnHandler: () => void
+  startNewGameHandler: () => void
 }
 
 const RoomBtnLayout = (props: RoomBtnDisplayProps) => {
@@ -26,13 +28,17 @@ const RoomBtnLayout = (props: RoomBtnDisplayProps) => {
         type={'main'}
         clickHandler={props.shareLinkGameBtnHandler}
       />
-      {/* <Btn
-        margin={'small'}
-        disabled={false}
-        type={'aux'}
-        name={'terminate game'}
-        clickHandler={() => console.log('End Game')}
-      /> */}
+      {props.onResults ? (
+        <Box w="100%">
+          <Btn
+            margin={'small'}
+            disabled={false}
+            type={'aux'}
+            name={'Start New Game'}
+            clickHandler={props.startNewGameHandler}
+          />
+        </Box>
+      ) : null}
     </Box>
   )
 }

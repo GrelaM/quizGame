@@ -1,247 +1,22 @@
-import { Question } from '../../../constants/interfaces'
+import { Handlers } from '../../../constants/interface/multiplayerRoom/roomHandler'
+import { Action } from '../../../constants/interface/multiplayerRoom/roomAction'
+import { MultiplayerRoomState } from '../../../constants/interface/multiplayerRoom/roomState'
 
-export interface State {
-  roomState: boolean
-  gameState: boolean
-  startGameReq: boolean
-  headerDisplay: string
-  players: {
-    array: string[]
-    alert: {
-      type: 'success' | 'info' | 'warning' | 'error' | undefined
-      title: string
-      message: string
-      status: boolean
-      showTimer: number
-    }
-  }
-  timer: number
-  leftQuestions: number
-  nextQuestion?: Question
-  counter: {
-    currentValue: number
-    counterStatus: boolean
-    updateRound: number
-  }
-  alert: {
-    type: 'success' | 'info' | 'warning' | 'error' | undefined
-    title: string
-    message: string
-    status: boolean
-    showTimer: number
-  }
-  finaleResults: {
-    resultsOnDisplay: boolean
-    resultsState: boolean
-    results: {
-      name: string
-      correctAnswers: number
-      totalQuestions: number
-      points: number
-    }[]
-  }
-}
-
-export const initialState: State = {
-  roomState: false,
-  gameState: false,
-  startGameReq: false,
-  headerDisplay: 'Please wait...',
-  players: {
-    array: [],
-    alert: {
-      type: undefined,
-      title: '',
-      message: '',
-      status: false,
-      showTimer: 1500
-    }
-  },
-  timer: 0,
-  leftQuestions: 0,
-  counter: {
-    currentValue: 0,
-    counterStatus: false,
-    updateRound: 0
-  },
-  alert: {
-    type: undefined,
-    title: '',
-    message: '',
-    status: false,
-    showTimer: 1500
-  },
-  finaleResults: {
-    resultsOnDisplay: false,
-    resultsState: false,
-    results: []
-  }
-}
-
-export enum Handlers {
-  CLEAR_PLAYER_ALERT_HANDLER = 'CLEAR_PLAYER_ALERT_HANDLER',
-  CLEAN_SNACKBAR_HANDLER = 'CLEAN_SNACKBAR_HANDLER',
-  ALERT_HANDLER = 'ALERT_HANDLER',
-  ON_OPEN_ROOM_HANDLER = 'ON_OPEN_ROOM_HANDLER',
-  UPDATE_PLAYERS_HANDLERS = 'UPDATE_PLAYERS_HANDLERS',
-  START_GAME_REQ_HANDLER = 'START_GAME_REQ_HANDLER',
-  HEADER_DISPLAY_HANDLER = 'HEADER_DISPLAY_HANDLER',
-  COUNTER_HANDLER = 'COUNTER_HANDLER',
-  COUNTER_STATUS_HANDLER = 'COUNTER_STATUS_HANDLER',
-  COUNTER_ROUND_HANDLER = 'COUNTER_ROUND_HANDLER',
-  SOCKET_GET_READY_HANDLER = 'SOCKET_GET_READY_HANDLER',
-  SOCKET_HOST_QUESTION_HANDLER = 'SOCKET_HOST_QUESTION_HANDLER',
-  RESULTS_ON_DISPLAY_HANDLER = 'RESULTS_ON_DISPLAY_HANDLER',
-  RESULTS_HANDLER = 'RESULTS_HANDLER'
-}
-
-export type Action =
-  | {
-      type: Handlers.CLEAR_PLAYER_ALERT_HANDLER
-    }
-  | { type: Handlers.CLEAN_SNACKBAR_HANDLER }
-  | {
-      type: Handlers.ALERT_HANDLER
-      value: {
-        type: 'success' | 'info' | 'warning' | 'error' | undefined
-        status: boolean
-        title: string
-        message: string
-      }
-    }
-  | {
-      type: Handlers.ON_OPEN_ROOM_HANDLER
-      value: {
-        roomState: boolean
-        alert: {
-          showTimer: number
-          type: 'success' | 'info' | 'warning' | 'error' | undefined
-          status: boolean
-          title: string
-          message: string
-        }
-      }
-    }
-  | {
-      type: Handlers.UPDATE_PLAYERS_HANDLERS
-      value: {
-        alert: {
-          type: 'success' | 'info' | 'warning' | 'error' | undefined
-          title: string
-          message: string
-          status: boolean
-          showTimer: number
-        }
-        allPlayers: string[]
-      }
-    }
-  | {
-      type: Handlers.START_GAME_REQ_HANDLER
-      value: boolean
-    }
-  | {
-      type: Handlers.HEADER_DISPLAY_HANDLER
-      value: string
-    }
-  | {
-      type: Handlers.COUNTER_HANDLER
-      value: {
-        currentValue: number
-        counterStatus: boolean
-      }
-    }
-  | {
-      type: Handlers.COUNTER_STATUS_HANDLER
-      value: boolean
-    }
-  | {
-      type: Handlers.COUNTER_ROUND_HANDLER
-      value: boolean
-    }
-  | {
-      type: Handlers.SOCKET_GET_READY_HANDLER
-      value: {
-        message: string
-        counter: number
-      }
-    }
-  | {
-      type: Handlers.SOCKET_HOST_QUESTION_HANDLER
-      value: {
-        timer: number
-        header: string
-        nextQuestion: Question
-      }
-    }
-  | {
-      type: Handlers.RESULTS_ON_DISPLAY_HANDLER
-      value: boolean
-    }
-  | {
-      type: Handlers.RESULTS_HANDLER
-      value: {
-        state: boolean
-        results: {
-          name: string
-          correctAnswers: number
-          totalQuestions: number
-          points: number
-        }[]
-      }
-    }
-
-export const multiplayerRoomReducer = (state: State, action: Action): State => {
+export const multiplayerRoomReducer = (
+  state: MultiplayerRoomState,
+  action: Action
+): MultiplayerRoomState => {
   switch (action.type) {
-    case Handlers.CLEAR_PLAYER_ALERT_HANDLER:
-      return {
-        ...state,
-        players: {
-          ...state.players,
-          alert: {
-            type: undefined,
-            title: '',
-            message: '',
-            status: false,
-            showTimer: 1500
-          }
-        }
-      }
-    case Handlers.CLEAN_SNACKBAR_HANDLER:
-      return {
-        ...state,
-        alert: {
-          ...state.alert,
-          type: undefined,
-          title: '',
-          message: '',
-          status: false
-        }
-      }
-    case Handlers.ALERT_HANDLER:
-      return {
-        ...state,
-        alert: {
-          ...state.alert,
-          type: action.value.type,
-          title: action.value.title,
-          message: action.value.message,
-          status: action.value.status
-        }
-      }
     case Handlers.ON_OPEN_ROOM_HANDLER:
       return {
         ...state,
-        headerDisplay: action.value.roomState ? 'active' : 'not active',
-        alert: action.value.alert,
-        roomState: action.value.roomState
+        headerDisplay: action.value ? 'active' : 'not active',
+        roomState: action.value
       }
     case Handlers.UPDATE_PLAYERS_HANDLERS:
       return {
         ...state,
-        players: {
-          array: action.value.allPlayers,
-          alert: action.value.alert
-        }
+        players: action.value
       }
     case Handlers.START_GAME_REQ_HANDLER:
       return { ...state, startGameReq: action.value }
@@ -297,6 +72,12 @@ export const multiplayerRoomReducer = (state: State, action: Action): State => {
     case Handlers.RESULTS_ON_DISPLAY_HANDLER:
       return {
         ...state,
+        timer: 0,
+        counter: {
+          currentValue: 0, 
+          counterStatus: false,
+          updateRound: state.counter.updateRound + 1
+        },
         finaleResults: {
           ...state.finaleResults,
           resultsOnDisplay: action.value

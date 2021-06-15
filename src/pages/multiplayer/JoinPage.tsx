@@ -1,7 +1,7 @@
-import { useHistory } from 'react-router-dom'
-import { useGameState } from '../../providers/GlobalStateProvider'
-import { Handlers as GlobalHandlers } from '../../functions/tools/global/contextReducer'
 import { useState, useEffect } from 'react'
+import { useHistory } from 'react-router-dom'
+import { useGlobalState } from '../../providers/StateProvider'
+import { GlobalHandler } from '../../constants/interface/provider/globalHandler'
 import queryString from 'query-string'
 
 import PageLayout from '../../components/layout/PageLayout'
@@ -22,7 +22,7 @@ const idHandler = (urlparams: any) => {
 
 const JoinGame = ({ location }: any) => {
   const history = useHistory()
-  const setGlobalState = useGameState()[1]
+  const setGlobalState = useGlobalState()[1]
   const [state, setState] = useState<{ nickname: string; roomId: string }>({
     nickname: '',
     roomId: ''
@@ -41,20 +41,33 @@ const JoinGame = ({ location }: any) => {
     const roomId = query.roomid
     const gameId = query.gameid
     setGlobalState({
-      type: GlobalHandlers.JOIN_MULTIPLAYER_GAME,
+      type: GlobalHandler.GAME_HANDLER,
       value: {
-        gameId: gameId ? gameId.toString() : '',
-        roomId: state.roomId,
-        nickname: state.nickname,
         mode: 'multiplayer',
+        gameId: gameId ? gameId.toString() : undefined,
+        roomId: state.roomId,
+        dummyId: state.roomId,
+        quantity: undefined,
+        timer: undefined,
+        level: undefined
+      }
+    })
+    setGlobalState({
+      type: GlobalHandler.USER_HANDLER,
+      value: {
+        id: undefined,
+        nickname: state.nickname,
         status: 'player'
       }
     })
-    history.push(`/multuplayer/game/${roomId}`)
+    history.push(`/multiplayer/game/${roomId}`)
   }
 
   useEffect(() => {
-    setGlobalState({ type: GlobalHandlers.HEADER_HANDLER, value: 'player' })
+    setGlobalState({
+      type: GlobalHandler.MENU_HANDLER,
+      value: { header: 'player', activeState: true }
+    })
   }, [setGlobalState])
 
   useEffect(() => {

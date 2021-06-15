@@ -1,10 +1,12 @@
-import { QuestionPayload } from '../../../../constants/interfaces'
 import SocketNames from '../../../../constants/socketNames'
-import {
-  Action,
-  Handlers
-} from '../../../tools/multiplayer/multiplayerRoomReducer'
+import { QuestionPayload } from '../../../../constants/interface/global/game'
 import { LocalStorage } from '../../../../constants/localStorage'
+
+import { Handlers } from '../../../../constants/interface/multiplayerRoom/roomHandler'
+import { Action } from '../../../../constants/interface/multiplayerRoom/roomAction'
+
+import { GlobalHandler } from '../../../../constants/interface/provider/globalHandler'
+import { GlobalAction } from '../../../../constants/interface/provider/globalAction'
 
 export const hostSocketHandler = (
   socket: any,
@@ -12,7 +14,8 @@ export const hostSocketHandler = (
     gameId: string
     roomId: string
   },
-  dispatch: React.Dispatch<Action>
+  dispatch: React.Dispatch<Action>,
+  setGlobalState: React.Dispatch<GlobalAction>
 ) => {
   socket.emit(
     SocketNames.HOST,
@@ -20,7 +23,6 @@ export const hostSocketHandler = (
     (fetchedData: {
       roomState: boolean
       alert: {
-        showTimer: 2000,
         type: 'success' | 'info' | 'warning' | 'error' | undefined
         status: boolean
         title: string
@@ -28,7 +30,20 @@ export const hostSocketHandler = (
       }
     }) => {
       if (fetchedData) {
-        dispatch({ type: Handlers.ON_OPEN_ROOM_HANDLER, value: fetchedData })
+        dispatch({
+          type: Handlers.ON_OPEN_ROOM_HANDLER,
+          value: fetchedData.roomState
+        })
+        setGlobalState({
+          type: GlobalHandler.MENU_ALERT_HANDLER,
+          value: {
+            type: fetchedData.alert.type,
+            status: fetchedData.alert.status,
+            title: fetchedData.alert.title,
+            message: fetchedData.alert.message,
+            displayTimer: 3000
+          }
+        })
       }
     }
   )
@@ -36,7 +51,8 @@ export const hostSocketHandler = (
 
 export const playersUpdateSocketHandler = (
   socket: any,
-  dispatch: React.Dispatch<Action>
+  dispatch: React.Dispatch<Action>,
+  setGlobalState: React.Dispatch<GlobalAction>
 ) => {
   socket.on(
     SocketNames.PLAYERS_UPDATE,
@@ -47,15 +63,16 @@ export const playersUpdateSocketHandler = (
     }) => {
       dispatch({
         type: Handlers.UPDATE_PLAYERS_HANDLERS,
+        value: data.allPlayers
+      })
+      setGlobalState({
+        type: GlobalHandler.MENU_ALERT_HANDLER,
         value: {
-          allPlayers: data.allPlayers,
-          alert: {
-            showTimer: 1500,
-            type: data.type,
-            title: 'Update',
-            message: data.message,
-            status: true
-          }
+          type: data.type,
+          title: 'Update',
+          message: data.message,
+          status: true,
+          displayTimer: 2000
         }
       })
     }

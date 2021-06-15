@@ -25,6 +25,7 @@ const SettingsPage = () => {
       type: GlobalHandler.MENU_HANDLER,
       value: { header: 'single player', activeState: true }
     })
+    setGlobalState({ type: GlobalHandler.MODE_HANDLER, value: 'single player' })
     if (window.localStorage.getItem(LocalStorage.SINGLE_GAME)) {
       setGlobalState({
         type: GlobalHandler.SETTINGS_HANDLER,

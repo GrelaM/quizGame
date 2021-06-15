@@ -1,7 +1,5 @@
-import {
-  Action,
-  Handlers
-} from '../../../tools/multiplayer/multiplayerGameReducer'
+import { Handlers } from '../../../../constants/interface/multiplayerGame/gameHandler'
+import { Action } from '../../../../constants/interface/multiplayerGame/gameAction'
 
 const hintsHandler = (
   time: number,

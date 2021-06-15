@@ -1,11 +1,13 @@
-// import {DataContextType} from '../../../../providers/GameStateProvider'
 import SocketNames from '../../../../constants/socketNames'
-import { QuestionPayload } from '../../../../constants/interfaces'
 import {
-  Handlers,
-  Action,
+  QuestionPayload,
   GameMode
-} from '../../../tools/multiplayer/multiplayerGameReducer'
+} from '../../../../constants/interface/global/game'
+import { Handlers } from '../../../../constants/interface/multiplayerGame/gameHandler'
+import { Action } from '../../../../constants/interface/multiplayerGame/gameAction'
+
+import { GlobalHandler } from '../../../../constants/interface/provider/globalHandler'
+import { GlobalAction } from '../../../../constants/interface/provider/globalAction'
 
 export const onJoinSocketHandler = (
   socket: any,
@@ -20,7 +22,8 @@ export const onJoinSocketHandler = (
 
 export const onPlayerUpdateSocketHandler = (
   socket: any,
-  dispatch: React.Dispatch<Action>
+  dispatch: React.Dispatch<Action>,
+  setGlobalState: React.Dispatch<GlobalAction>
 ) => {
   socket.on(
     SocketNames.PLAYERS_UPDATE,
@@ -32,15 +35,16 @@ export const onPlayerUpdateSocketHandler = (
     }) => {
       dispatch({
         type: Handlers.UPDATE_PLAYERS_HANDLERS,
+        value: data.allPlayers
+      })
+      setGlobalState({
+        type: GlobalHandler.MENU_ALERT_HANDLER,
         value: {
-          array: data.allPlayers,
-          alert: {
-            showTimer: 1500,
-            type: data.type,
-            title: 'Update',
-            message: data.message,
-            status: true
-          }
+          type: data.type,
+          title: 'Update',
+          message: data.message,
+          status: true,
+          displayTimer: 2000
         }
       })
     }
@@ -65,9 +69,13 @@ export const onGetReadySocketHandler = (
 export const onQuestionHandler = (
   socket: any,
   dispatch: React.Dispatch<Action>,
-  callBack: (message: string) => void
+  setGlobalState: React.Dispatch<GlobalAction>
 ) => {
   socket.on(SocketNames.QUESTION, (data: QuestionPayload) => {
+    setGlobalState({
+      type: GlobalHandler.SETTINGS_HANDLER,
+      value: { toggleLoading: false, credentials: false }
+    })
     let message: string = ''
 
     if (data.playerData.questionNumber < data.playerData.totalQuestions) {
@@ -85,15 +93,23 @@ export const onQuestionHandler = (
     }
 
     dispatch({ type: Handlers.ON_QUESTION_SOCKET_HANDLER, value: payload })
-    callBack(message)
+    setGlobalState({
+      type: GlobalHandler.MENU_HANDLER,
+      value: { header: message, activeState: true }
+    })
   })
 }
 
 export const onEndGameSocketHandler = (
   socket: any,
-  dispatch: React.Dispatch<Action>
+  dispatch: React.Dispatch<Action>,
+  setGlobalState: React.Dispatch<GlobalAction>
 ) => {
   socket.on(SocketNames.END_GAME, ({ status }: { status: boolean }) => {
+    setGlobalState({
+      type: GlobalHandler.SETTINGS_HANDLER,
+      value: { toggleLoading: false, credentials: false }
+    })
     dispatch({
       type: Handlers.RESULTS_ON_DISPLAY_HANDLER,
       value: GameMode.RESULTS

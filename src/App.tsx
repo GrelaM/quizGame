@@ -47,7 +47,7 @@ function App() {
                 <Route path="/hosting" component={HostPage} />
                 <Route path="/join" component={JoinPage} />
                 <Route
-                  path="/multuplayer/game/:gameid"
+                  path="/multiplayer/game/:gameid"
                   component={MultiplayerGamePage}
                 />
                 <Route path="/test" component={Test} />

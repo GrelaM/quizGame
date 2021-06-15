@@ -34,6 +34,8 @@ export const globalReducer = (
       return { ...state, user: action.value }
     case GlobalHandler.GAME_HANDLER:
       return { ...state, game: action.value }
+    case GlobalHandler.MODE_HANDLER:
+      return { ...state, game: { ...state.game, mode: action.value } }
     case GlobalHandler.ALERT_HANDLER:
       return { ...state, alert: action.value }
     case GlobalHandler.CLEAR_ALERT_HANDLER:

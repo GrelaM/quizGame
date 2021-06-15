@@ -20,7 +20,7 @@ interface GameSettingsProps {
 }
 
 const GameSettings = (props: GameSettingsProps) => {
-  const game = useGlobalState()[0]
+  const gameState = useGlobalState()[0]
   const [state, dispatch] = useReducer(settingsReducer, initialState)
   const settingsArray = Object.values(state.gameSettings)
 
@@ -44,7 +44,7 @@ const GameSettings = (props: GameSettingsProps) => {
       paddingBlock={1}
     >
       <CustomInput
-        isDisabled={game.menu.header === 'multiplayer' ? true : false}
+        isDisabled={gameState.game.mode === 'multiplayer' ? true : false}
         placeholder={'Enter your nickname...'}
         value={state.nicknameInput}
         maxLength={12}
@@ -65,8 +65,8 @@ const GameSettings = (props: GameSettingsProps) => {
       })}
       <Btn
         disabled={
-          game.menu.header === 'multiplayer' ||
-          (game.menu.header === 'single player' && state.nicknameInput)
+          gameState.game.mode === 'multiplayer' ||
+          (gameState.game.mode === 'single player' && state.nicknameInput)
             ? false
             : true
         }

@@ -1,89 +1,12 @@
-interface HostPageInitialStateType {
-  display: {
-    message: string
-    header: string
-    roomId: string
-  }
-  toggleAlert: boolean
-  shouldGo: boolean
-  localStorageAlert: boolean
-  mode: number
-}
-
-export const initialState: HostPageInitialStateType = {
-  display: {
-    message: 'Please wait...',
-    header: 'Room: ',
-    roomId: 'will be created soon...'
-  },
-  toggleAlert: false,
-  shouldGo: false,
-  localStorageAlert: false,
-  mode: 0
-}
-
-export enum Handlers {
-  TOGGLE_ALERT_HANDLER = 'TOGGLE_ALERT_HANDLER',
-  DISPLAY_HANDLER = 'DISPLAY_HANDLER',
-  SET_MODE_HANDLER = 'SET_MODE_HANDLER',
-  RECOVERY_HANDLER = 'RECOVERY_HANDLER',
-  RECOVERY_SUCCESS_HANDLER = 'RECOVERY_SUCCESS_HANDLER',
-  FETCHED_DATA_HANDLER = 'FETCHED_DATA_HANDLER'
-}
-
-export type Action =
-  | {
-      type: Handlers.TOGGLE_ALERT_HANDLER
-      value: boolean
-    }
-  | {
-      type: Handlers.DISPLAY_HANDLER
-      value: {
-        message: string
-        header: string
-        roomId: string
-      }
-    }
-  | {
-      type: Handlers.SET_MODE_HANDLER
-      value: number
-    }
-  | {
-      type: Handlers.RECOVERY_HANDLER
-      value: boolean
-    }
-  | {
-      type: Handlers.RECOVERY_SUCCESS_HANDLER
-      value: {
-        display: {
-          message: string
-          header: string
-          roomId: string
-        }
-        shouldGo: boolean
-        localStorageAlert: boolean
-        mode: number
-      }
-    }
-  | {
-      type: Handlers.FETCHED_DATA_HANDLER
-      value: {
-        display: {
-          message: 'Please wait...'
-          header: 'Room: '
-          roomId: 'will be created soon...'
-        }
-        shouldGo: boolean
-      }
-    }
+import { Handlers } from '../../../constants/interface/hostPage/hostHandler'
+import { Action } from '../../../constants/interface/hostPage/hostAction'
+import { HostPageInterface } from '../../../constants/interface/hostPage/hostState'
 
 export const hostPageReducer = (
-  state: HostPageInitialStateType,
+  state: HostPageInterface,
   action: Action
-): HostPageInitialStateType => {
+): HostPageInterface => {
   switch (action.type) {
-    case Handlers.TOGGLE_ALERT_HANDLER:
-      return { ...state, toggleAlert: action.value }
     case Handlers.DISPLAY_HANDLER:
       return { ...state, display: action.value }
     case Handlers.SET_MODE_HANDLER:

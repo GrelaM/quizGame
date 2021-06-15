@@ -1,7 +1,5 @@
-import {
-  Action,
-  Handlers
-} from '../../../tools/multiplayer/multiplayerRoomReducer'
+import { Handlers } from '../../../../constants/interface/multiplayerRoom/roomHandler'
+import { Action } from '../../../../constants/interface/multiplayerRoom/roomAction'
 
 const counterHandler = (
   message: string,

@@ -4,23 +4,11 @@ import { StarIcon } from '@chakra-ui/icons'
 import PlayerDisplay from './PlayersDisplay'
 import HostResults from './HostResults'
 
-import Alert from '../../events/UpdateAlertBox'
-
 interface RoomStatusDislpayProps {
   roomName: string
   roomState: boolean
   headerDisplay: string
-  players: {
-    array: string[]
-    alert: {
-      type: 'success' | 'info' | 'warning' | 'error' | undefined
-      title: string
-      message: string
-      status: boolean
-      showTimer: number
-    }
-  }
-  playerAlertHandler: () => void
+  players: string[]
   counter: number
   resultsOnDisplay: boolean
   resultsState: boolean
@@ -93,22 +81,16 @@ const RoomStatusDislpay = (props: RoomStatusDislpayProps) => {
         />
       </Flex>
       {/*Player and Result display*/}
-      <PlayerDisplay playersArray={props.players.array} noPlayersMessage={props.noPlayersMessage} />
+      <PlayerDisplay
+        playersArray={props.players}
+        noPlayersMessage={props.noPlayersMessage}
+      />
       {props.resultsOnDisplay ? (
         <HostResults
           results={props.results}
           resultsState={props.resultsState}
         />
       ) : null}
-      <Alert
-        type={props.players.alert.type}
-        title={props.players.alert.title}
-        message={props.players.alert.message}
-        shouldDisplay={props.players.alert.status}
-        alertHandler={props.playerAlertHandler}
-        alertTimer={props.players.alert.showTimer}
-        bottom={1}
-      />
     </Flex>
   )
 }

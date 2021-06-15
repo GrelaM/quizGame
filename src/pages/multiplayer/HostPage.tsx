@@ -1,21 +1,18 @@
 import { useEffect, useReducer } from 'react'
 import { useHistory } from 'react-router-dom'
 import { LocalStorage } from '../../constants/localStorage'
-import { useGameState } from '../../providers/GlobalStateProvider'
-import { Handlers as GlobalHandlers } from '../../functions/tools/global/contextReducer'
+import { useGlobalState } from '../../providers/StateProvider'
+import { GlobalHandler } from '../../constants/interface/provider/globalHandler'
 
-import {
-  Handlers,
-  hostPageReducer,
-  initialState
-} from '../../functions/tools/multiplayer/hostPageReducer'
+import { initialState } from '../../constants/initialState/hostPage'
+import { hostPageReducer } from '../../functions/tools/multiplayer/hostPageReducer'
+import { Handlers } from '../../constants/interface/hostPage/hostHandler'
 
 import {
   newGameHandler,
   openRoomHandler,
   agreeHandler,
-  disagreeHandler,
-  errorHandler
+  disagreeHandler
 } from '../../functions/other/multiplayer/hostPage/handlers'
 
 import PageLayout from '../../components/layout/PageLayout'
@@ -25,7 +22,7 @@ import RoomInfoDisplay from '../../components/custom/multiplayer/RoomInfoDisplay
 
 const HostPage = () => {
   const history = useHistory()
-  const setGlobalState = useGameState()[1]
+  const setGlobalState = useGlobalState()[1]
   const [state, dispatch] = useReducer(hostPageReducer, initialState)
 
   useEffect(() => {
@@ -37,18 +34,20 @@ const HostPage = () => {
 
   useEffect(() => {
     setGlobalState({
-      type: GlobalHandlers.ON_GAME_SETTINGS_HANDLER,
+      type: GlobalHandler.MENU_HANDLER,
       value: {
         header: 'new quiz',
-        mode: 'multiplayer'
+        activeState: true
       }
     })
   }, [setGlobalState])
 
-  let dislpay = (
+  let dislpay: JSX.Element = (
     <Settings
       creatingNewGameHandler={(settings) =>
-        newGameHandler(settings, dispatch, setGlobalState)
+        newGameHandler(settings, dispatch, setGlobalState, () =>
+          dispatch({ type: Handlers.SET_MODE_HANDLER, value: 0 })
+        )
       }
     />
   )
@@ -63,9 +62,9 @@ const HostPage = () => {
         gameState={state.shouldGo}
         goBackHandler={() => history.goBack()}
         openRoomHandler={() =>
-          openRoomHandler(state.display.roomId, (id: string) =>
+          openRoomHandler(state.display.roomId, (id: string) => {
             history.push(`/hosting/room/${id}`)
-          )
+          })
         }
       />
     )

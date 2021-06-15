@@ -1,11 +1,11 @@
 import { LocalStorage } from '../../../../constants/localStorage'
-import { Handlers, Action } from '../../../tools/multiplayer/hostPageReducer'
-import {
-  Handlers as GlobalHandlers,
-  Action as GlobalAction
-} from '../../../tools/global/contextReducer'
 import { multiplayerGameReq } from '../../../connection/multiplayer/multiplayeGameReq'
 import { recoveryReq } from '../../../connection/multiplayer/multiplayerRecoveryReq'
+
+import { Handlers } from '../../../../constants/interface/hostPage/hostHandler'
+import { Action } from '../../../../constants/interface/hostPage/hostAction'
+import { GlobalHandler } from '../../../../constants/interface/provider/globalHandler'
+import { GlobalAction } from '../../../../constants/interface/provider/globalAction'
 
 export const newGameHandler = async (
   data: {
@@ -14,21 +14,24 @@ export const newGameHandler = async (
     time: number
   },
   dispatch: React.Dispatch<Action>,
-  setGlobalState: React.Dispatch<GlobalAction>
+  setGlobalState: React.Dispatch<GlobalAction>,
+  callback: () => void
 ) => {
   dispatch({ type: Handlers.SET_MODE_HANDLER, value: 1 })
   try {
     const fetchedData = await multiplayerGameReq(data)
     if (fetchedData) {
       setGlobalState({
-        type: GlobalHandlers.SET_MULTIPLAYER_GAME,
+        type: GlobalHandler.USER_HANDLER,
+        value: { id: undefined, nickname: 'Unknown', status: 'host' }
+      })
+      setGlobalState({
+        type: GlobalHandler.GAME_HANDLER,
         value: {
-          id: undefined,
           mode: 'multiplayer',
-          nickname: 'Anonymous',
-          status: 'host',
           gameId: fetchedData.data.gameId,
           roomId: fetchedData.data.roomId,
+          dummyId: undefined,
           quantity: data.quantity,
           timer: data.time,
           level: data.level
@@ -47,7 +50,10 @@ export const newGameHandler = async (
       })
       const localStorage = {
         gameId: fetchedData.data.gameId,
-        roomId: fetchedData.data.roomId
+        roomId: fetchedData.data.roomId,
+        quantity: data.quantity,
+        timer: data.time,
+        level: data.level
       }
       window.localStorage.setItem(
         LocalStorage.MULTIPLAYER,
@@ -55,16 +61,17 @@ export const newGameHandler = async (
       )
     }
   } catch (e) {
-    dispatch({ type: Handlers.TOGGLE_ALERT_HANDLER, value: true })
     setGlobalState({
-      type: GlobalHandlers.SET_ALERT_HANDLER,
+      type: GlobalHandler.ALERT_HANDLER,
       value: {
         type: 'error',
         status: true,
         title: e.message,
-        message: 'Please try again...'
+        message: 'Please try again...',
+        displayTimer: 4000
       }
     })
+    callback()
   }
 }
 
@@ -81,18 +88,30 @@ export const agreeHandler = async (
   setGlobalState: React.Dispatch<GlobalAction>
 ) => {
   try {
-    const data: { gameId: string; roomId: string } = JSON.parse(
-      window.localStorage.getItem(LocalStorage.MULTIPLAYER)!
-    )
+    const data: {
+      gameId: string
+      roomId: string
+      quantity: number
+      timer: number
+      level: number
+    } = JSON.parse(window.localStorage.getItem(LocalStorage.MULTIPLAYER)!)
     const fetchedData = await recoveryReq(data.gameId)
-    if (fetchedData) {
+    console.log(fetchedData.status)
+    if (fetchedData.status === 200) {
       setGlobalState({
-        type: GlobalHandlers.SET_RECOVERY_MODE_MULTIPLAYER_HANDLER,
+        type: GlobalHandler.USER_HANDLER,
+        value: { id: undefined, nickname: 'Unknown', status: 'host' }
+      })
+      setGlobalState({
+        type: GlobalHandler.GAME_HANDLER,
         value: {
-          status: 'host',
           mode: 'multiplayer',
           gameId: data.gameId,
-          roomId: data.roomId
+          roomId: data.roomId,
+          dummyId: undefined,
+          quantity: data.quantity,
+          timer: data.timer,
+          level: data.level
         }
       })
       dispatch({
@@ -108,16 +127,16 @@ export const agreeHandler = async (
           mode: 1
         }
       })
-    }
+    } 
   } catch (e) {
-    dispatch({ type: Handlers.TOGGLE_ALERT_HANDLER, value: true })
     setGlobalState({
-      type: GlobalHandlers.SET_ALERT_HANDLER,
+      type: GlobalHandler.ALERT_HANDLER,
       value: {
         type: 'error',
         status: true,
         title: e.message,
-        message: 'Please try again...'
+        message: 'Please try again...',
+        displayTimer: 4000
       }
     })
   }
@@ -126,14 +145,4 @@ export const agreeHandler = async (
 export const disagreeHandler = (dispatch: React.Dispatch<Action>) => {
   window.localStorage.removeItem(LocalStorage.MULTIPLAYER)
   dispatch({ type: Handlers.RECOVERY_HANDLER, value: false })
-}
-
-export const errorHandler = (
-  dispatch: React.Dispatch<Action>,
-  setGlobalState: React.Dispatch<GlobalAction>,
-  callback: () => void
-) => {
-  dispatch({ type: Handlers.TOGGLE_ALERT_HANDLER, value: false })
-  setGlobalState({ type: GlobalHandlers.CLEAR_ALERT_HANDLER })
-  callback()
 }

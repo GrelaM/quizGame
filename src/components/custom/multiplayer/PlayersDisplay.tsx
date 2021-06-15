@@ -29,7 +29,7 @@ const PlayerDisplay = (props: { playersArray: string[], noPlayersMessage?: strin
       >
         {props.playersArray.length <= 0 ? (
           <Text color="text.primary.650" p={1} m={1} letterSpacing={1}>
-            {props.noPlayersMessage ? props.noPlayersMessage : 'Please invite players...'}
+            {props.noPlayersMessage ? props.noPlayersMessage : 'The room is empty...'}
           </Text>
         ) : (
           props.playersArray.map((el, index) => {

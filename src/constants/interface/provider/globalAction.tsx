@@ -40,6 +40,9 @@ export type GlobalAction =
         quantity: undefined | number
         level: undefined | number
       }
+    } | {
+      type: GlobalHandler.MODE_HANDLER,
+      value: undefined | 'single player' | 'multiplayer'
     }
   | {
       type: GlobalHandler.ALERT_HANDLER
